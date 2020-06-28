@@ -1,0 +1,13 @@
+{
+"queries":[
+    {"distance": [100000, 100000], "feature": ["gene"], "feature_anchor": ["start", "end"], "name": "query_1", "relative_location": ["FeatureInsidePeak", "OverlapStart", "Upstream", "OverlapEnd", "Downstream", "PeakInsideFeature"], "strand": "ignore"}
+          ],
+"show_attributes": ["ID"],
+"priority": "False",
+"gtf": "resources/hydra.augustus.gtf",
+"bed": "resources/untreated_consensus_diffbind_labels.bed",
+"prefix": "untreated_consensus",
+"outdir": "resources",
+"threads": "1",
+"output_by_query": "False"
+}
