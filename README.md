@@ -6,6 +6,8 @@ The code in this repository has been divided into two sections based on the comp
 
 Because of limitations in the size and format of files that can be hosted on Github, not all files necessary for this analysis are included in this repository. We provide links for the omitted files that are publicly available through other sources. The required files not available through other sources can be accessed from the version of this repository hosted on [datadryad.org](https://doi.org/10.25338/B8S612).
 
+**Note:** After this repository was deposited on Dryad, a bug was found in the `ATAC_Post_DGE_Analysis.R` script. This script has been updated on the Github repository, but not the Dryad version. Therefore, if downloading the repository from Dryad, replace the `ATAC_Post_DGE_Analysis.R` script with the version hosted on Github.
+
 Descriptions for the files associated with this repository can be found in the `fileDescriptions.txt` file.
 
 ###### Publicly available resources
