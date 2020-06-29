@@ -19,9 +19,9 @@ The following files are required and can be downloaded from other sources (links
 
 [the *Hydra* LRv2 transcriptome reference](https://arusha.nhgri.nih.gov/hydra/download/transcripts/aepLRv2_transcript.fa.gz) - required in the `local/Wnt_Survey` folder.
 
-[refseq proteins for Nematostella vectensis](ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/209/225/GCF_000209225.1_ASM20922v1/GCF_000209225.1_ASM20922v1_protein.faa.gz) - required in the `local/Wnt_Survey` folder.
+[refseq proteins for Nematostella vectensis](https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/209/225/GCF_000209225.1_ASM20922v1/GCF_000209225.1_ASM20922v1_protein.faa.gz) - required in the `local/Wnt_Survey` folder.
 
-[refseq proteins for Exaiptasia pallida](ftp.ncbi.nlm.nih.gov/genomes/all/GCF/001/417/965/GCF_001417965.1_Aiptasia_genome_1.1/GCF_001417965.1_Aiptasia_genome_1.1_protein.faa.gz) - required in the `local/Wnt_Survey` folder.
+[refseq proteins for Exaiptasia pallida](https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/001/417/965/GCF_001417965.1_Aiptasia_genome_1.1/GCF_001417965.1_Aiptasia_genome_1.1_protein.faa.gz) - required in the `local/Wnt_Survey` folder.
 
 
 [the swissprot database](https://www.uniprot.org/downloads) - required in the `local/Wnt_Survey` folder. **File modification required:** The analysis requires a file derived from the swissprot fasta file that contains only human sequences (`SP.human.fasta`). To generate that file, execute the following code in the directory containing the `uniprot_sprot.fasta` file:
