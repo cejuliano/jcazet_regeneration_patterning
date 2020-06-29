@@ -19,9 +19,9 @@ The following files are required and can be downloaded from other sources (links
 
 [the *Hydra* LRv2 transcriptome reference](https://arusha.nhgri.nih.gov/hydra/download/transcripts/aepLRv2_transcript.fa.gz) - required in the `local/Wnt_Survey` folder.
 
-[refseq proteins for *Nematostella vectensis*](ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/209/225/GCF_000209225.1_ASM20922v1/GCF_000209225.1_ASM20922v1_protein.faa.gz) - required in the `local/Wnt_Survey` folder.
+[refseq proteins for Nematostella vectensis](ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/209/225/GCF_000209225.1_ASM20922v1/GCF_000209225.1_ASM20922v1_protein.faa.gz) - required in the `local/Wnt_Survey` folder.
 
-[refseq proteins for *Exaiptasia pallida*](ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/001/417/965/GCF_001417965.1_Aiptasia_genome_1.1/GCF_001417965.1_Aiptasia_genome_1.1_protein.faa.gz) - required in the `local/Wnt_Survey` folder.
+[refseq proteins for Exaiptasia pallida](ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/001/417/965/GCF_001417965.1_Aiptasia_genome_1.1/GCF_001417965.1_Aiptasia_genome_1.1_protein.faa.gz) - required in the `local/Wnt_Survey` folder.
 
 
 [the swissprot database](https://www.uniprot.org/downloads) - required in the `local/Wnt_Survey` folder. **File modification required:** The analysis requires a file derived from the swissprot fasta file that contains only human sequences (`SP.human.fasta`). To generate that file, execute the following code in the directory containing the `uniprot_sprot.fasta` file:
@@ -70,7 +70,7 @@ These files were generated specifically for this analysis and are available at t
 ### Setup
 Before beginning the analysis, first download the 'cluster' folder from this repository. Raw data from this study as well as from Wenger et al. (2019) need to be downloaded to the `cluster` directory as gzipped fastq files. Raw data for this study can be found at the accession GSE152994. The accession numbers for the relevant data from Wenger et al. can be found in `cluster/resources/Wenger_Accessions.txt`. Note that code within this section is written to be executed from within the `cluster` directory.
 
-The analysis requires that the user have [bowtie2](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml), [rsem](https://deweylab.github.io/RSEM/), [samtools](http://www.htslib.org/), and [bedtools](https://bedtools.readthedocs.io/en/latest/), and [Python3](https://www.python.org/download/releases/3.0/) in their path.
+The analysis requires that the user have [bowtie2](http://bowtie-bio.sourceforge.net/bowtie2/index.html), [rsem](https://deweylab.github.io/RSEM/), [samtools](http://www.htslib.org/), and [bedtools](https://bedtools.readthedocs.io/en/latest/), and [Python3](https://www.python.org/download/releases/3.0/) in their path.
 
 #### File naming conventions
 The pipelines provided in this repository are designed to process gzipped fastq files whose names follow a specific structure. Names should be structured as follows:

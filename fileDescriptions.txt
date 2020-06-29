@@ -2,63 +2,197 @@ Files in the `local` directory:
 
 ATAC_Read_Counts.R
 
-R script that uses DiffBind to count reads within ATAC-seq peaks. It will also execute the `annotate_peaks.sh` script to annotate peaks based on the nearest gene in the genome. This script requires the finalized bam files ([prefix]_final_shift.bam) created by the `ATAC_Peak_Pipeline.sh` script; the `untreated_consensus.bed` and `full_consensus.bed` files created by the `generate_consensus.sh` script; and a python virtual environment folder named `venv` with the uropa package installed. As output, it saves the DiffBind object containing read counts for untreated samples in the file `resources/untreated_ATAC_Counts.rds`, the DiffBind object containing read counts for all samples in the file `resources/full_ATAC_Counts.rds`, and consensus peak files that use the names given to peaks by the DiffBind package (`resources/full_consensus_diffbind_labels.bed` and `resources/untreated_consensus_diffbind_labels.bed`).
+R script that uses DiffBind to count reads within ATAC-seq peaks. It
+will also execute the `annotate_peaks.sh` script to annotate peaks based
+on the nearest gene in the genome. This script requires the finalized
+bam files ([prefix]_final_shift.bam) created by the
+`ATAC_Peak_Pipeline.sh` script; the `untreated_consensus.bed` and
+`full_consensus.bed` files created by the `generate_consensus.sh`
+script; and a python virtual environment folder named `venv` with the
+uropa package installed. As output, it saves the DiffBind object
+containing read counts for untreated samples in the file
+`resources/untreated_ATAC_Counts.rds`, the DiffBind object containing
+read counts for all samples in the file
+`resources/full_ATAC_Counts.rds`, and consensus peak files that use the
+names given to peaks by the DiffBind package
+(`resources/full_consensus_diffbind_labels.bed` and
+`resources/untreated_consensus_diffbind_labels.bed`).
 
 annotate_peaks.sh
 
-Shell script that uses uropa to annotate peaks based on the nearest gene. This script is executed within the `ATAC_Read_Counts.R` script. The script requires the `untreated_consensus.bed` and `full_consensus.bed` files created by the `generate_consensus.sh` script and a python virtual environment folder named `venv` with the uropa package installed. The script outputs the annotation files `resources/untreated_consensus_finalhits.txt` and `resources/full_consensus_finalhits.txt`
+Shell script that uses uropa to annotate peaks based on the nearest
+gene. This script is executed within the `ATAC_Read_Counts.R` script.
+The script requires the `untreated_consensus.bed` and
+`full_consensus.bed` files created by the `generate_consensus.sh` script
+and a python virtual environment folder named `venv` with the uropa
+package installed. The script outputs the annotation files
+`resources/untreated_consensus_finalhits.txt` and
+`resources/full_consensus_finalhits.txt`
 
 ATAC_DGE.R
 
-R script that uses edgeR to identify significant differentials in chromatin accessibility in untreated ATAC-seq samples. This script requires the `untreated_ATAC_Counts.rds` file produced by the `ATAC_Read_Counts.R` script and the `untreated_consensus_finalhits.txt` file produced by the `annotate_peaks.sh` script. As output, it saves the edgeR DGEList object, all dataframes containing the results of pairwise comparisons, a dataframe with normalized read counts (CPM), peak annotations (closest gene), and the diffbind object used for determining read counts into the file `Analysis_Output/ATAC/ATAC_DGE.RData`;  it outputs dataframes containing the results of pairwise comparisons as csv files into the `Analysis_Output/ATAC` folder; it outputs a matrix summarizing all pairwise comparisons performed during the analysis in the `Analysis_Output/ATAC/contrasts.csv` file; and it outputs a list of peaks that exhibited significant changes in accessibility during regeneration in the `resources/regen_peakset.bed` file. 
+R script that uses edgeR to identify significant differentials in
+chromatin accessibility in untreated ATAC-seq samples. This script
+requires the `untreated_ATAC_Counts.rds` file produced by the
+`ATAC_Read_Counts.R` script and the `untreated_consensus_finalhits.txt`
+file produced by the `annotate_peaks.sh` script. As output, it saves the
+edgeR DGEList object, all dataframes containing the results of pairwise
+comparisons, a dataframe with normalized read counts (CPM), peak
+annotations (closest gene), and the diffbind object used for determining
+read counts into the file `Analysis_Output/ATAC/ATAC_DGE.RData`;  it
+outputs dataframes containing the results of pairwise comparisons as csv
+files into the `Analysis_Output/ATAC` folder; it outputs a matrix
+summarizing all pairwise comparisons performed during the analysis in
+the `Analysis_Output/ATAC/contrasts.csv` file; and it outputs a list of
+peaks that exhibited significant changes in accessibility during
+regeneration in the `resources/regen_peakset.bed` file.
 
 iCRT_ATAC_DGE.R
 
-R script that uses edgeR to identify significant differentials in chromatin accessibility in all ATAC-seq samples. This script requires the `full_ATAC_Counts.rds` file produced by the `ATAC_Read_Counts.R` script and the `full_consensus_finalhits.txt` file produced by the `annotate_peaks.sh` script. As output, it saves the edgeR DGEList object, all dataframes containing the results of pairwise comparisons, a dataframe with normalized read counts (CPM), peak annotations (closest gene), and the diffbind object used for determining read counts into the file `Analysis_Output/ATAC/iATAC_DGE.RData`; it outputs dataframes containing the results of pairwise comparisons as csv files into the `Analysis_Output/ATAC` folder; and it outputs a matrix summarizing all pairwise comparisons performed during the analysis in the `Analysis_Output/ATAC/icontrasts.csv` file.
+R script that uses edgeR to identify significant differentials in
+chromatin accessibility in all ATAC-seq samples. This script requires
+the `full_ATAC_Counts.rds` file produced by the `ATAC_Read_Counts.R`
+script and the `full_consensus_finalhits.txt` file produced by the
+`annotate_peaks.sh` script. As output, it saves the edgeR DGEList
+object, all dataframes containing the results of pairwise comparisons, a
+dataframe with normalized read counts (CPM), peak annotations (closest
+gene), and the diffbind object used for determining read counts into the
+file `Analysis_Output/ATAC/iATAC_DGE.RData`; it outputs dataframes
+containing the results of pairwise comparisons as csv files into the
+`Analysis_Output/ATAC` folder; and it outputs a matrix summarizing all
+pairwise comparisons performed during the analysis in the
+`Analysis_Output/ATAC/icontrasts.csv` file.
 
 ATAC_Post_DGE_Analysis.R
 
-R script that generates plots visualizing changes in chromatin accessibility. This script requires the `ATAC_DGE.RData` and `iATAC_DGE.RData` files produced by the `ATAC_DGE.R` and `iCRT_ATAC_DGE.R` scripts respectively. It also requires the bigwig files of pooled ATAC-seq bioreplicates ([prefix]_MG_final_shift.bw) generated by the `ATAC_Peak_Pipeline.sh` script. The script outputs plots comparing changes in accessibility during head and foot regeneration (FC_Comp_[prefix].pdf), plots showing the homeostatic structural enrichment associated with asymmetrically activated regions of the genome (Struct_[X]hpa.pdf), and plots showing ATAC-seq data for head and foot regeneration during the first eight hours of regeneration for canonical Wnt signaling gene loci (X_prom.pdf). All output is placed in the `plots/ATAC` directory.
+R script that generates plots visualizing changes in chromatin
+accessibility. This script requires the `ATAC_DGE.RData` and
+`iATAC_DGE.RData` files produced by the `ATAC_DGE.R` and
+`iCRT_ATAC_DGE.R` scripts respectively. It also requires the bigwig
+files of pooled ATAC-seq bioreplicates ([prefix]_MG_final_shift.bw)
+generated by the `ATAC_Peak_Pipeline.sh` script. The script outputs
+plots comparing changes in accessibility during head and foot
+regeneration (FC_Comp_[prefix].pdf), plots showing the homeostatic
+structural enrichment associated with asymmetrically activated regions
+of the genome (Struct_[X]hpa.pdf), and plots showing ATAC-seq data for
+head and foot regeneration during the first eight hours of regeneration
+for canonical Wnt signaling gene loci (X_prom.pdf). All output is placed
+in the `plots/ATAC` directory.
 
 ChromVar_Counts.R
 
-R script that calculates read counts for fixed-width injury-responsive ATAC-seq peaks for downstream analysis using the chromVAR package. This script requires the `regen_peakset.bed` generated by the `ATAC_DGE.R` script as well as the final bam files created by the `ATAC_Peak_Pipeline.sh` script. Saves R objects containing read counts for just untreated samples (`resources/untreated_chromVar_Counts.RData`) as well as a separate object for all samples (`resources/chromVar_iCounts.RData`).
+R script that calculates read counts for fixed-width injury-responsive
+ATAC-seq peaks for downstream analysis using the chromVAR package. This
+script requires the `regen_peakset.bed` generated by the `ATAC_DGE.R`
+script as well as the final bam files created by the
+`ATAC_Peak_Pipeline.sh` script. Saves R objects containing read counts
+for just untreated samples (`resources/untreated_chromVar_Counts.RData`)
+as well as a separate object for all samples
+(`resources/chromVar_iCounts.RData`).
 
 motif_clustering.R
 
-R script that uses output from the HOMER compareMotifs.pl script to hierarchically cluster HOMER motifs based on sequence similarity. This script requires HOMER to be installed in the user's home folder. The script outputs motif clustering results in the `resources/HOMER_motif_clusters.csv` file.
+R script that uses output from the HOMER compareMotifs.pl script to
+hierarchically cluster HOMER motifs based on sequence similarity. This
+script requires HOMER to be installed in the user's home folder. The
+script outputs motif clustering results in the
+`resources/HOMER_motif_clusters.csv` file.
 
 chromVar_Untreated_Analysis.R
 
-R script that identifies transcription factor binding motifs associated with significant variation in accessibility during regeneration using chromVAR on untreated ATAC-seq samples. This script requires the `untreated_chromVar_Counts.RData` file produced by the `ChromVar_Counts.R` script and the `HOMER_motif_clusters.csv` file produced by the `motif_clustering.R` script. This script outputs the relative accessibility associated with transcription factor binding motifs for each sample in the `Analysis_Output/ATAC/untreated_deviations.csv` file and it generates plots for average motif accessibility during regeneration (chromVar_[TFBM]_accessibility_HOMER.pdf) that are written to the `plots/ATAC/HOMER_motifs` folder. 
+R script that identifies transcription factor binding motifs associated
+with significant variation in accessibility during regeneration using
+chromVAR on untreated ATAC-seq samples. This script requires the
+`untreated_chromVar_Counts.RData` file produced by the
+`ChromVar_Counts.R` script and the `HOMER_motif_clusters.csv` file
+produced by the `motif_clustering.R` script. This script outputs the
+relative accessibility associated with transcription factor binding
+motifs for each sample in the
+`Analysis_Output/ATAC/untreated_deviations.csv` file and it generates
+plots for average motif accessibility during regeneration
+(chromVar_[TFBM]_accessibility_HOMER.pdf) that are written to the
+`plots/ATAC/HOMER_motifs` folder.
 
 chromVar_icrt_Analysis.R
 
-R script that characterizes changes accessibility associated with injury-responsive transcription factor binding motifs induced by treatment with the TCF/beta-catenin inhibitor iCRT14. This script requires the `chromVar_iCounts.RData` file produced by the `ChromVar_Counts.R` script. This script outputs the relative accessibility associated with transcription factor binding motifs for each sample in the `Analysis_Output/ATAC/full_deviations.csv` file and it generates plots for average motif accessibility during regeneration (chromVar_[TFBM]_accessibility_HOMER.pdf)that are written to the `plots/ATAC/HOMER_motifs_icrt` folder.
+R script that characterizes changes accessibility associated with
+injury-responsive transcription factor binding motifs induced by
+treatment with the TCF/beta-catenin inhibitor iCRT14. This script
+requires the `chromVar_iCounts.RData` file produced by the
+`ChromVar_Counts.R` script. This script outputs the relative
+accessibility associated with transcription factor binding motifs for
+each sample in the `Analysis_Output/ATAC/full_deviations.csv` file and
+it generates plots for average motif accessibility during regeneration
+(chromVar_[TFBM]_accessibility_HOMER.pdf)that are written to the
+`plots/ATAC/HOMER_motifs_icrt` folder.
 
 RNAseq_DGE.R
 
-R script that uses edgeR to identify significant differentials in transcript abundance in untreated RNA-seq samples. This script requires the `RNA.counts.matrix` file produced by the `generate_RNA_Matrix.sh` script. The script outputs the file `Analysis_Output/RNA/RNA_DGE.RData` that contains the edgeR DGEList used to perform the pairwise DGE comparisons, a data frame of gene model annotations, a data frame containing normalized read counts (CPM) per gene per sample, and data frames containing the results of all pairwise comparisons performed as part of the DGE. It also outputs all results tables as csv files in the `Analysis_Output/RNA/` folder.
+R script that uses edgeR to identify significant differentials in
+transcript abundance in untreated RNA-seq samples. This script requires
+the `RNA.counts.matrix` file produced by the `generate_RNA_Matrix.sh`
+script. The script outputs the file `Analysis_Output/RNA/RNA_DGE.RData`
+that contains the edgeR DGEList used to perform the pairwise DGE
+comparisons, a data frame of gene model annotations, a data frame
+containing normalized read counts (CPM) per gene per sample, and data
+frames containing the results of all pairwise comparisons performed as
+part of the DGE. It also outputs all results tables as csv files in the
+`Analysis_Output/RNA/` folder.
 
 iCRT_RNA_DGE.R
 
-R script that uses edgeR to identify significant differentials in transcript abundance in all RNA-seq samples. This script requires the `RNA.counts.matrix` file produced by the `generate_RNA_Matrix.sh` script. The script outputs the file `Analysis_Output/RNA/icrt_RNA_DGE.RData` that contains the edgeR DGEList used to perform the pairwise DGE comparisons, a data frame of gene model annotations, a data frame containing normalized read counts (CPM) per gene per sample, and data frames containing the results of all pairwise comparisons performed as part of the DGE. It also outputs all results tables as csv files in the `Analysis_Output/RNA/` folder.
+R script that uses edgeR to identify significant differentials in
+transcript abundance in all RNA-seq samples. This script requires the
+`RNA.counts.matrix` file produced by the `generate_RNA_Matrix.sh`
+script. The script outputs the file
+`Analysis_Output/RNA/icrt_RNA_DGE.RData` that contains the edgeR DGEList
+used to perform the pairwise DGE comparisons, a data frame of gene model
+annotations, a data frame containing normalized read counts (CPM) per
+gene per sample, and data frames containing the results of all pairwise
+comparisons performed as part of the DGE. It also outputs all results
+tables as csv files in the `Analysis_Output/RNA/` folder.
 
 Wenger_RNAseq_DGE.R
 
-R script that uses edgeR to identify significant differentials in transcript abundance in RNA-seq samples from Wenger et al. (2019). This script requires the `wRNA.counts.matrix` file produced by the `generate_RNA_Matrix.sh` script. The script outputs the file `Analysis_Output/RNA/wRNA_DGE.RData` that contains the edgeR DGEList used to perform the pairwise DGE comparisons, a data frame containing normalized read counts (CPM) per gene per sample, and data frames containing the results of all pairwise comparisons performed as part of the DGE. It also outputs all results tables as csv files in the `Analysis_Output/RNA/` folder.
+R script that uses edgeR to identify significant differentials in
+transcript abundance in RNA-seq samples from Wenger et al. (2019). This
+script requires the `wRNA.counts.matrix` file produced by the
+`generate_RNA_Matrix.sh` script. The script outputs the file
+`Analysis_Output/RNA/wRNA_DGE.RData` that contains the edgeR DGEList
+used to perform the pairwise DGE comparisons, a data frame containing
+normalized read counts (CPM) per gene per sample, and data frames
+containing the results of all pairwise comparisons performed as part of
+the DGE. It also outputs all results tables as csv files in the
+`Analysis_Output/RNA/` folder.
 
 RNA_Post_DGE_Analysis.R
 
-R script that generates plots visualizing changes in transcript abundance and checks for correspondence with results from Wenger et al. and ATAC-seq results. This script requires the file `RNA_DGE.RData` from the `RNAseq_DGE.R` script, the file `icrt_RNA_DGE.RData` generated by the `iCRT_RNA_DGE.R` script, the file `wRNA_DGE.RData` generated by the `Wenger_RNAseq_DGE.R` script, and the file `ATAC_DGE.RData` from the `ATAC_DGE.R` script. This script outputs plots in the `plots/RNA/` directory. These files include: plots comparing changes in gene expression during head and foot regeneration, plots comparing structural enrichment during regeneration with structural enrichment in uninjured animals, RNA expression plots of individual genes of interest (in the `plots/RNA/Noteworthy_Genes` folder), a plot comparing structural enrichment at 12 hpa with average expression at 3 hpa, and plots showing the effect of iCRT14 treatment on changes in transcript abundance.
- 
+R script that generates plots visualizing changes in transcript
+abundance and checks for correspondence with results from Wenger et al.
+and ATAC-seq results. This script requires the file `RNA_DGE.RData` from
+the `RNAseq_DGE.R` script, the file `icrt_RNA_DGE.RData` generated by
+the `iCRT_RNA_DGE.R` script, the file `wRNA_DGE.RData` generated by the
+`Wenger_RNAseq_DGE.R` script, and the file `ATAC_DGE.RData` from the
+`ATAC_DGE.R` script. This script outputs plots in the `plots/RNA/`
+directory. These files include: plots comparing changes in gene
+expression during head and foot regeneration, plots comparing structural
+enrichment during regeneration with structural enrichment in uninjured
+animals, RNA expression plots of individual genes of interest (in the
+`plots/RNA/Noteworthy_Genes` folder), a plot comparing structural
+enrichment at 12 hpa with average expression at 3 hpa, and plots showing
+the effect of iCRT14 treatment on changes in transcript abundance.
+
 ectopic_tentacle_plot.R
 
-R script that outputs boxplots depicting the number of ectopic tentacles formed under various impalement conditions in the `plots` folder. 
+R script that outputs boxplots depicting the number of ectopic tentacles
+formed under various impalement conditions in the `plots` folder.
 
 scan_for_CRE.sh
 
-Shell script that uses the HOMER function `scanMotifGenomeWide.pl` to generate a bed file of predicted instances of CRE-like transcription factor binding motifs in the Hydra 2.0 genome. Outputs the file `Analysis_Output/CRE_sites.bed`.
+Shell script that uses the HOMER function `scanMotifGenomeWide.pl` to
+generate a bed file of predicted instances of CRE-like transcription
+factor binding motifs in the Hydra 2.0 genome. Outputs the file
+`Analysis_Output/CRE_sites.bed`.
 
 -------------------------------------------------------------
 
@@ -66,71 +200,127 @@ Files in the `local/resources` directory:
 
 untreated_consensus.bed
 
-Bed file containing the consensus peaks identified using an IDR cutoff of 0.1 for untreated ATAC-seq samples. Generated by the `generate_consensus.sh` script.
+Bed file containing the consensus peaks identified using an IDR cutoff
+of 0.1 for untreated ATAC-seq samples. Generated by the
+`generate_consensus.sh` script.
+
+untreated_consensus_diffbind_labels.bed
+
+Bed file containing the consensus peaks identified using an IDR cutoff
+of 0.1 for untreated ATAC-seq samples. This file is generated by the
+`ChromVar_Counts.R` script. This peakset is identical to
+`untreated_consensus.bed` peakset, but the peaks have been given new IDs
+by the DiffBind package. The peak IDs from this file are the ones used
+in the final results tables generated by the `ATAC_DGE.R` script.
 
 full_consensus.bed
 
-Bed file containing the consensus peaks identified using an IDR cutoff of 0.1 for all ATAC-seq samples. Generated by the `generate_consensus.sh` script.
+Bed file containing the consensus peaks identified using an IDR cutoff
+of 0.1 for all ATAC-seq samples. Generated by the
+`generate_consensus.sh` script.
+
+full_consensus_diffbind_labels.bed
+
+Bed file containing the consensus peaks identified using an IDR cutoff
+of 0.1 for all ATAC-seq samples. This file is generated by the
+`ChromVar_Counts.R` script. This peakset is identical to
+`full_consensus.bed` peakset, but the peaks have been given new IDs by
+the DiffBind package. The peak IDs from this file are the ones used in
+the final results tables generated by the `iCRT_ATAC_DGE.R` script.
 
 untreated_ATAC_Counts.rds
 
-R binary file containing the DBA object created by the DiffBind package that contains the read count information for the untreated consensus peakset (from the `untreated_consensus.bed` file) for all untreated ATAC-seq samples. Generated by the `ATAC_Read_Counts.R` script.
+R binary file containing the DBA object created by the DiffBind package
+that contains the read count information for the untreated consensus
+peakset (from the `untreated_consensus.bed` file) for all untreated
+ATAC-seq samples. Generated by the `ATAC_Read_Counts.R` script.
 
 untreated_ATAC_Counts.csv
 
-Table containing the read count matrix for the untreated consensus peakset (from the `untreated_consensus.bed` file) for untreated ATAC-seq samples as calculated using the DiffBind package. Generated by the `ATAC_Read_Counts.R` script.
+Table containing the read count matrix for the untreated consensus
+peakset (from the `untreated_consensus.bed` file) for untreated ATAC-seq
+samples as calculated using the DiffBind package. Generated by the
+`ATAC_Read_Counts.R` script.
 
 full_ATAC_Counts.csv
 
-Table containing the read count matrix for the full consensus peakset (from the `full_consensus.bed` file) for all ATAC-seq samples as calculated using the DiffBind package. Generated by the `ATAC_Read_Counts.R` script.
+Table containing the read count matrix for the full consensus peakset
+(from the `full_consensus.bed` file) for all ATAC-seq samples as
+calculated using the DiffBind package. Generated by the
+`ATAC_Read_Counts.R` script.
 
 full_ATAC_Counts.rds
 
-R binary file containing the DBA object created by the DiffBind package that contains the read count information for the full consensus peakset (from the `full_consensus.bed` file) for all ATAC-seq samples. Generated by the `ATAC_Read_Counts.R` script.
+R binary file containing the DBA object created by the DiffBind package
+that contains the read count information for the full consensus peakset
+(from the `full_consensus.bed` file) for all ATAC-seq samples. Generated
+by the `ATAC_Read_Counts.R` script.
 
 cre_homer.motif
 
-File containing HOMER-formatted position weight matrices of CRE-like binding motifs. Used by the `scan_for_CRE.sh` script.
+File containing HOMER-formatted position weight matrices of CRE-like
+binding motifs. Used by the `scan_for_CRE.sh` script.
 
 untreated_consensus.json
 
-File containing the settings used by uropa to annotate the untreated consensus peakset (from the `untreated_consensus.bed` file) based on the nearest gene model in the Hydra 2.0 genome. Used by the `annotate_peaks.sh` script.
+File containing the settings used by uropa to annotate the untreated
+consensus peakset (from the `untreated_consensus.bed` file) based on the
+nearest gene model in the Hydra 2.0 genome. Used by the
+`annotate_peaks.sh` script.
 
 full_consensus.json
 
-File containing the settings used by uropa to annotate the full consensus peakset (from the `full_consensus.bed` file) based on the nearest gene model in the Hydra 2.0 genome. Used by the `annotate_peaks.sh` script.
+File containing the settings used by uropa to annotate the full
+consensus peakset (from the `full_consensus.bed` file) based on the
+nearest gene model in the Hydra 2.0 genome. Used by the
+`annotate_peaks.sh` script.
 
 wRNA.counts.matrix
 
-Read count matrix for RNA-seq data from Wenger et al. mapped to the Hydra 2.0 genome gene models. Generated by the `generate_RNA_Matrix.sh` script. Used by the `Wenger_RNAseq_DGE.R` script.
+Read count matrix for RNA-seq data from Wenger et al. mapped to the
+Hydra 2.0 genome gene models. Generated by the `generate_RNA_Matrix.sh`
+script. Used by the `Wenger_RNAseq_DGE.R` script.
 
 RNA.counts.matrix
 
-Read count matrix for RNA-seq data generated by this study mapped to the Hydra 2.0 genome gene models. Generated by the `generate_RNA_Matrix.sh` script. Used by the `ATAC_DGE.R` script. 
+Read count matrix for RNA-seq data generated by this study mapped to the
+Hydra 2.0 genome gene models. Generated by the `generate_RNA_Matrix.sh`
+script. Used by the `ATAC_DGE.R` script.
 
 chromVar_HOMER.motifs
 
-File containing the list of HOMER-formatted position weight matrices included in the chromVAR package. Used by the `motif_clustering.R` script.
+File containing the list of HOMER-formatted position weight matrices
+included in the chromVAR package. Used by the `motif_clustering.R`
+script.
 
 BSgenome.Hymag.NIH.Hymag2_2.0.tar.gz
 
-Source code that allows for the installation of an R package containing the Hydra 2.0 genome reference. This package needs to be installed before running the `ChromVar_Counts.R` script.
+Source code that allows for the installation of an R package containing
+the Hydra 2.0 genome reference. This package needs to be installed
+before running the `ChromVar_Counts.R` script.
 
 expanded_dovetail_SP_annot.csv
 
-Table that contains the best swissprot blast hit for each Hydra 2.0 genome gene model along with additional information associated with each swissprot hit. Used by the `ATAC_DGE.R`, `iCRT_ATAC_DGE.R`, `RNAseq_DGE.R`, and `iCRT_RNA_DGE.R` scripts.
+Table that contains the best swissprot blast hit for each Hydra 2.0
+genome gene model along with additional information associated with each
+swissprot hit. Used by the `ATAC_DGE.R`, `iCRT_ATAC_DGE.R`,
+`RNAseq_DGE.R`, and `iCRT_RNA_DGE.R` scripts.
 
 Hydra_Seurat_Whole_Genome_updated.rds
 
-R binary file containing a Seurat object of the Hydra single cell sequencing atlas data mapped to the Hydra 2.0 genome gene models. Used by the `RNA_Post_DGE_Analysis.R` script.
+R binary file containing a Seurat object of the Hydra single cell
+sequencing atlas data mapped to the Hydra 2.0 genome gene models. Used
+by the `RNA_Post_DGE_Analysis.R` script.
 
 hydra.augustus.gtf
 
-Genome coordinates that map the Hydra 2.0 genome gene models to the genome reference sequence. Used by the `annotate_peaks.sh` script.
- 
+Genome coordinates that map the Hydra 2.0 genome gene models to the
+genome reference sequence. Used by the `annotate_peaks.sh` script.
+
 Dovetail.genome
 
-File containing the lengths of all contigs in the Hydra 2.0 genome. Used by the `ChromVar_Counts.R` script.
+File containing the lengths of all contigs in the Hydra 2.0 genome. Used
+by the `ChromVar_Counts.R` script.
 
 -------------------------------------------------------------
 
@@ -138,39 +328,76 @@ Files in the `local/Wnt_Survey` directory:
 
 positional_ordering.R
 
-R script that uses the results of URD trajectory analyses of endodermal and ectodermal epithelial cells published in Siebert et al. (2019) to generate a matrix of average RNA expression as a function of position along the oral-aboral axis for transcripts in the LRv2 AEP transcriptome reference. Generates the `Wnt_Survey/ecto_endo_spline.RData` file used by the `wntGenes.R` script.
+R script that uses the results of URD trajectory analyses of endodermal
+and ectodermal epithelial cells published in Siebert et al. (2019) to
+generate a matrix of average RNA expression as a function of position
+along the oral-aboral axis for transcripts in the LRv2 AEP transcriptome
+reference. Generates the `Wnt_Survey/ecto_endo_spline.RData` file used
+by the `wntGenes.R` script.
 
 crossReferenceIDs.R
 
-R script that uses results from reciprocal blast searches to generate a table that converts transcript IDs from the AEP LRv2 transcriptome reference to IDs for the Hydra 2.0 genome gene models. Generates the `Wnt_Survey/crossReferenceIDs.csv` used by the `wntGenes.R` script.
+R script that uses results from reciprocal blast searches to generate a
+table that converts transcript IDs from the AEP LRv2 transcriptome
+reference to IDs for the Hydra 2.0 genome gene models. Generates the
+`Wnt_Survey/crossReferenceIDs.csv` used by the `wntGenes.R` script.
 
 crossRefBlast.sh
 
-Shell script called by the `crossReferenceIDs.R` script. Performs reciprocal blastn searches for the AEP LRv2 and Hydra 2.0 genome gene model references. Outputs the files `lrToDv.txt` and `dvToLr.txt` to the `Wnt_Survey` folder.
+Shell script called by the `crossReferenceIDs.R` script. Performs
+reciprocal blastn searches for the AEP LRv2 and Hydra 2.0 genome gene
+model references. Outputs the files `lrToDv.txt` and `dvToLr.txt` to the
+`Wnt_Survey` folder.
 
 wntGenes.R
 
-R script that uses KEGG gene annotations to identify canonical Wnt signaling components in the Hydra 2.0 genome gene models and generates heatmaps of Wnt gene expression along the oral-aboral axis in epithelial cells and during the first 12 hours of head and foot regeneration. Requires the `crossReferenceIDs.csv` file generated by the `crossReferenceIDs.R` script and the `ecto_endo_spline.RData` file generated by the `positional_ordering.R` script. Plots are written to the `Wnt_Survey` folder. 
+R script that uses KEGG gene annotations to identify canonical Wnt
+signaling components in the Hydra 2.0 genome gene models and generates
+heatmaps of Wnt gene expression along the oral-aboral axis in epithelial
+cells and during the first 12 hours of head and foot regeneration.
+Requires the `crossReferenceIDs.csv` file generated by the
+`crossReferenceIDs.R` script and the `ecto_endo_spline.RData` file
+generated by the `positional_ordering.R` script. Plots are written to
+the `Wnt_Survey` folder.
 
 initial_blast.sh
 
-Shell script called by the `wntGenes.R` script. Performs blasp searches using genes that were identified as Wnt signaling genes by KEGG in the original Hydra genome, the Exaiptasia pallida genome, the Nematostella vectensis genome, and the human genome as queries against the Hydra 2.0 genome protein models. Requires the files `hsaWntGenes.fasta`, `hmgWntGenes.fasta`, `nveWntGenes.fasta`, and `epaWntGenes.fasta` generated by the `wntGenes.R` script. Outputs the files `hsToHv.tx`, `hmToHv.tx`, `nvToHv.tx`, and `epToHv.txt` to the `Wnt_Survey` folder.
+Shell script called by the `wntGenes.R` script. Performs blasp searches
+using genes that were identified as Wnt signaling genes by KEGG in the
+original Hydra genome, the Exaiptasia pallida genome, the Nematostella
+vectensis genome, and the human genome as queries against the Hydra 2.0
+genome protein models. Requires the files `hsaWntGenes.fasta`,
+`hmgWntGenes.fasta`, `nveWntGenes.fasta`, and `epaWntGenes.fasta`
+generated by the `wntGenes.R` script. Outputs the files `hsToHv.tx`,
+`hmToHv.tx`, `nvToHv.tx`, and `epToHv.txt` to the `Wnt_Survey` folder.
 
 fetchHvSeq.sh
 
-Shell script called by the `wntGenes.R` script that uses pyfasta to extract sequences from the `hydra.augustus.fastp` file using the gene IDs listed in the `hvCandidates.txt` file generated by the `wntGenes.R` script. Outputs the file `hvCandidates.fa` in the `Wnt_Survey` folder.
+Shell script called by the `wntGenes.R` script that uses pyfasta to
+extract sequences from the `hydra.augustus.fastp` file using the gene
+IDs listed in the `hvCandidates.txt` file generated by the `wntGenes.R`
+script. Outputs the file `hvCandidates.fa` in the `Wnt_Survey` folder.
 
 recipBlast.sh
 
-Shell script called by the `wntGenes.R` script. Performs blasp searches using candidate Wnt signaling genes from the Hydra 2.0 geneome gene models as a query against Nematostella vectensis, Exaiptasia pallida, and Human references. Requires the file `hvCandidates.fa` generated by the `fetchHvSeq.sh` script. Outputs the files `hvToEpa.txt`, `hvToNve.txt`, and `hvToHs.txt` to the `Wnt_Survey` folder.
+Shell script called by the `wntGenes.R` script. Performs blasp searches
+using candidate Wnt signaling genes from the Hydra 2.0 geneome gene
+models as a query against Nematostella vectensis, Exaiptasia pallida,
+and Human references. Requires the file `hvCandidates.fa` generated by
+the `fetchHvSeq.sh` script. Outputs the files `hvToEpa.txt`,
+`hvToNve.txt`, and `hvToHs.txt` to the `Wnt_Survey` folder.
 
 Hydra_URD_Endoderm.rds
 
-R binary files containing URD objects of endodermal epithelial cells computationally ordered along the oral-aboral axis. Used by the `positional_ordering.R` script.
+R binary files containing URD objects of endodermal epithelial cells
+computationally ordered along the oral-aboral axis. Used by the
+`positional_ordering.R` script.
 
 Hydra_URD_Ectoderm.rds
 
-R binary files containing URD objects of ectodermal epithelial cells computationally ordered along the oral-aboral axis. Used by the `positional_ordering.R` script.
+R binary files containing URD objects of ectodermal epithelial cells
+computationally ordered along the oral-aboral axis. Used by the
+`positional_ordering.R` script.
 
 hydra.augustus.fastp
 
@@ -178,7 +405,9 @@ Protein sequences for the Hydra 2.0 genome gene models.
 
 LRv2_SP.csv
 
-Table that contains the best swissprot blast hit for the LRv2 transcriptome reference along with additional information associated with each swissprot hit. Used by the `crossReferenceIDs.R` script.
+Table that contains the best swissprot blast hit for the LRv2
+transcriptome reference along with additional information associated
+with each swissprot hit. Used by the `crossReferenceIDs.R` script.
 
 aepLRv2.fasta
 
@@ -194,93 +423,167 @@ Files in the `cluster/resources` directory:
 
 prep_references.sh
 
-Shell script that prepares indexed bowtie2 references for the Hydra 2.0 genome and the Hydra mitochondrial genome. It also prepares a rsem/bowtie2 reference for the Hydra 2.0 genome gene model coding sequences. This script is called by `slurm_prepare_references.sh`.
+Shell script that prepares indexed bowtie2 references for the Hydra 2.0
+genome and the Hydra mitochondrial genome. It also prepares a
+rsem/bowtie2 reference for the Hydra 2.0 genome gene model coding
+sequences. This script is called by `slurm_prepare_references.sh`.
 
 Dovetail_mRNAs_Genemap.txt
 
-File that maps gene IDs to transcript IDs for the Hydra 2.0 genome gene models. Used by the `prep_references.sh` script
+File that maps gene IDs to transcript IDs for the Hydra 2.0 genome gene
+models. Used by the `prep_references.sh` script
 
 slurm_prepare_references.sh
 
-Shell script that executes the `prep_references.sh` script using the slurm task manager.
+Shell script that executes the `prep_references.sh` script using the
+slurm task manager.
 
 RNA_Mapping_Pipeline.sh
 
-Shell script that processes RNA-seq fastq files. The script removes low quality basecalls and adapter sequences using trimmomatic, then maps reads and quantifies read counts per transcript using rsem. The script outputs a filtered fastq file, a `[prefix].genes.results` file that countains read counts per transcript, and fastqc reports of unfiltered and filtered libraries. This script is called by `slurm_RNA_pipeline_run.sh`
+Shell script that processes RNA-seq fastq files. The script removes low
+quality basecalls and adapter sequences using trimmomatic, then maps
+reads and quantifies read counts per transcript using rsem. The script
+outputs a filtered fastq file, a `[prefix].genes.results` file that
+countains read counts per transcript, and fastqc reports of unfiltered
+and filtered libraries. This script is called by
+`slurm_RNA_pipeline_run.sh`
 
 slurm_RNA_pipeline_run.sh
 
-Shell script that calls the `RNA_Mapping_Pipeline.sh` script on all RNA-seq fastq files using a slurm array.
+Shell script that calls the `RNA_Mapping_Pipeline.sh` script on all
+RNA-seq fastq files using a slurm array.
 
 generate_RNA_Matrix.sh
 
-Shell script that generates a read count matrix for RNA-seq samples generated in this study and a separate matrix for counts from the Wenger et al. data. Requires the `[prefix].genes.results` files generated by the `RNA_Mapping_Pipeline.sh` script.
+Shell script that generates a read count matrix for RNA-seq samples
+generated in this study and a separate matrix for counts from the Wenger
+et al. data. Requires the `[prefix].genes.results` files generated by
+the `RNA_Mapping_Pipeline.sh` script.
 
 slurm_generate_RNA_matrix.sh
 
-Shell script that executes the `generate_RNA_Matrix.sh` script using the slurm task manager.
+Shell script that executes the `generate_RNA_Matrix.sh` script using the
+slurm task manager.
 
 ATAC_Mapping_Pipeline.sh
 
-Shell script that processes ATAC-seq fastq files. The script removes low quality basecalls and adapter sequences using trimmomatic, maps filtered reads to both the entire genome reference and the mitochondrial genome reference using bowtie2, removes mitochondrial reads from the genome-mapped BAM file using picard tools, sorts the mapped reads using samtools, and tags and removes duplicated reads using picard tools and samtools. This script outputs fastqc reports of unfiltered and filtered reads (`[prefix]_ATAC_R#_fastqc.html` and `[prefix]_ATAC_R#_trim_fastqc.html`), a text file containing PCR bottlenecking metrics (`[prefix]_PBC.txt`), a filtered fastq file ([prefix]_ATAC_R#_trim.fastq.gz`), and a bam file containing the final set of reads to be used for peak calling(`[prefix]_final.bam`). This script is called by `slurm_ATAC_Mapping_Pipeline.sh`.
+Shell script that processes ATAC-seq fastq files. The script removes low
+quality basecalls and adapter sequences using trimmomatic, maps filtered
+reads to both the entire genome reference and the mitochondrial genome
+reference using bowtie2, removes mitochondrial reads from the
+genome-mapped BAM file using picard tools, sorts the mapped reads using
+samtools, and tags and removes duplicated reads using picard tools and
+samtools. This script outputs fastqc reports of unfiltered and filtered
+reads (`[prefix]_ATAC_R#_fastqc.html` and
+`[prefix]_ATAC_R#_trim_fastqc.html`), a text file containing PCR
+bottlenecking metrics (`[prefix]_PBC.txt`), a filtered fastq file
+([prefix]_ATAC_R#_trim.fastq.gz`), and a bam file containing the final
+set of reads to be used for peak calling(`[prefix]_final.bam`). This
+script is called by `slurm_ATAC_Mapping_Pipeline.sh`.
 
 slurm_ATAC_Mapping_Pipeline.sh
 
-Shell script that calls the `ATAC_Mapping_Pipeline.sh` script on all ATAC-seq fastq files using a slurm array.
+Shell script that calls the `ATAC_Mapping_Pipeline.sh` script on all
+ATAC-seq fastq files using a slurm array.
 
 ATAC_Peak_Pipeline.sh
 
-Shell script that calls peaks on aligned ATAC-seq reads for a set of biological replicates. This script requires the `[prefix]_final.bam` generated by the `ATAC_Mapping_Pipeline.sh` script. The script shifts reads using deeptools to have reads align with the center of the Tn5 binding site; creates a pooled bam file of all biological replicates; generates pseudo-replicates by splitting the pooled BAM file into the same number of files as the number of input replicates; it generates self-pseudo-replicates by splitting individual biological replicates into two bam files; calls peaks on all biological replicates, pseudo-replicates, and self-pseudo-replicates using MACS2; performs pairwise comparisons using IDR on all biological replicates, pseudo-replicates, and self-pseudoreplicates; calculates TSS enrichment statistics using R and deeptools; and generates bigwig tracks of ATAC-seq read coverage of the Hydra 2.0 genome. The script outputs IDR statistics in the file `[prefix]_IDR_Stats.txt`, a list of consensus peaks for true biological replicates in the file `[prefix]_bioReps.consensus.bed`, a list of consensus peaks for psuedoreplicates in the file `[prefix]_psReps.consensus.bed`, files containing plots depicting the TSS enrichment statistics for all biological replicates in the file `[prefix]_TSS.pdf`, and bigwig files of ATAC-seq read coverage for individual biological replicates in the file `[prefix]_final_shift.bw` and a pooled bigwig in the `[prefix]_MG_final_shift.bw` file.
+Shell script that calls peaks on aligned ATAC-seq reads for a set of
+biological replicates. This script requires the `[prefix]_final.bam`
+generated by the `ATAC_Mapping_Pipeline.sh` script. The script shifts
+reads using deeptools to have reads align with the center of the Tn5
+binding site; creates a pooled bam file of all biological replicates;
+generates pseudo-replicates by splitting the pooled BAM file into the
+same number of files as the number of input replicates; it generates
+self-pseudo-replicates by splitting individual biological replicates
+into two bam files; calls peaks on all biological replicates,
+pseudo-replicates, and self-pseudo-replicates using MACS2; performs
+pairwise comparisons using IDR on all biological replicates,
+pseudo-replicates, and self-pseudoreplicates; calculates TSS enrichment
+statistics using R and deeptools; and generates bigwig tracks of
+ATAC-seq read coverage of the Hydra 2.0 genome. The script outputs IDR
+statistics in the file `[prefix]_IDR_Stats.txt`, a list of consensus
+peaks for true biological replicates in the file
+`[prefix]_bioReps.consensus.bed`, a list of consensus peaks for
+psuedoreplicates in the file `[prefix]_psReps.consensus.bed`, files
+containing plots depicting the TSS enrichment statistics for all
+biological replicates in the file `[prefix]_TSS.pdf`, and bigwig files
+of ATAC-seq read coverage for individual biological replicates in the
+file `[prefix]_final_shift.bw` and a pooled bigwig in the
+`[prefix]_MG_final_shift.bw` file.
 
 
 slurm_ATAC_Peak_Calling.sh
 
-Shell script that calls the `ATAC_Peak_Pipeline.sh` script on all sets of ATAC-seq biological replicates using a slurm array.
+Shell script that calls the `ATAC_Peak_Pipeline.sh` script on all sets
+of ATAC-seq biological replicates using a slurm array.
 
 generate_consensus.sh
 
-Shell script that pools all consensus peaks from both untreated treatment groups and all ATAC-seq samples to generate a finalized consensus peakset. Requires the `[prefix]_bioReps.consensus.bed` files generated by the `ATAC_Peak_Pipeline.sh` script. Outputs an untreated consensus peak set (`untreated_consensus.bed`) and a full consensus peak set (`full_consensus.bed`).
+Shell script that pools all consensus peaks from both untreated
+treatment groups and all ATAC-seq samples to generate a finalized
+consensus peakset. Requires the `[prefix]_bioReps.consensus.bed` files
+generated by the `ATAC_Peak_Pipeline.sh` script. Outputs an untreated
+consensus peak set (`untreated_consensus.bed`) and a full consensus peak
+set (`full_consensus.bed`).
 
 slurm_generate_ATAC_peak_consensus.sh
 
-Shell script that executes the `generate_consensus.sh` script using the slurm task manager.
+Shell script that executes the `generate_consensus.sh` script using the
+slurm task manager.
 
 TruSeq3-SE.fa
 
-Fasta file containing adapter sequences to be trimmed using trimmomatic. Used in the `RNA_Mapping_Pipeline.sh` script.
+Fasta file containing adapter sequences to be trimmed using trimmomatic.
+Used in the `RNA_Mapping_Pipeline.sh` script.
 
 NexteraPE-PE.fa
 
-Fasta file containing adapter sequences to be trimmed using trimmomatic. Used in the `ATAC_Mapping_Pipeline.sh` script.
+Fasta file containing adapter sequences to be trimmed using trimmomatic.
+Used in the `ATAC_Mapping_Pipeline.sh` script.
 
 TSS_Calculation.R
 
-R script called from within the `ATAC_Peak_Pipeline.sh` script that calculates the fold enrichment of ATAC-seq signal near TSS and generates summary plots (`[prefix]_TSS.pdf`) of the TSS enrichment results.
+R script called from within the `ATAC_Peak_Pipeline.sh` script that
+calculates the fold enrichment of ATAC-seq signal near TSS and generates
+summary plots (`[prefix]_TSS.pdf`) of the TSS enrichment results.
 
 Wenger_Accessions.txt
 
-List of SRA accession numbers for the data files needed from the Wenger et al. study.
+List of SRA accession numbers for the data files needed from the Wenger
+et al. study.
 
 generateSubsampleValue.R
 
-R script called from within the `ATAC_Peak_Pipeline.sh` script that generates values needed for the samtools-based approach for generating psuedoreplicates.
+R script called from within the `ATAC_Peak_Pipeline.sh` script that
+generates values needed for the samtools-based approach for generating
+psuedoreplicates.
 
 Consensus_Peaks.R
 
-R script called from within the `ATAC_Peak_Pipeline.sh` script that uses the DiffBind package to identify peaks that passed an IDR threshold of 0.1 in at least three pairwise comparisons for either true biological replicates or for pseudoreplicates.
+R script called from within the `ATAC_Peak_Pipeline.sh` script that uses
+the DiffBind package to identify peaks that passed an IDR threshold of
+0.1 in at least three pairwise comparisons for either true biological
+replicates or for pseudoreplicates.
 
 dovetail_genes_High2000.bed
 
-File containing the genomic coordinates for the 2000 most highly expressed genes in the Hydra single cell RNA-seq atlas. Used to identify TSS in the `ATAC_Peak_Pipeline.sh` script.
+File containing the genomic coordinates for the 2000 most highly
+expressed genes in the Hydra single cell RNA-seq atlas. Used to identify
+TSS in the `ATAC_Peak_Pipeline.sh` script.
 
 105_mitochondrial_genome.fa
 
-The Hydra mitochondrial genome sequence. Used by the `prep_references.sh` and `ATAC_Mapping_Pipeline.sh` scripts.
+The Hydra mitochondrial genome sequence. Used by the
+`prep_references.sh` and `ATAC_Mapping_Pipeline.sh` scripts.
 
 python_requirements.txt
 
-File listing all python required to create a Python virtual environment in which to execute the analyses in the `local` directory of this repository.
+File listing all python required to create a Python virtual environment
+in which to execute the analyses in the `local` directory of this
+repository.
 
 Dovetail.genome
 
-File containing the lengths of all contigs in the Hydra 2.0 genome. Used by the `generate_consensus.sh` script.
+File containing the lengths of all contigs in the Hydra 2.0 genome. Used
+by the `generate_consensus.sh` script.
