@@ -222,7 +222,7 @@ FC.comp.8.str$strFC[is.na(FC.comp.8.str$strFC) | grepl("^g",FC.comp.8.str$strFC)
 
 FC.comp.8.str$strFC <- as.numeric(FC.comp.8.str$strFC)
 
-FC.comp.8.str$str[sign(FC.comp.8.str$strFC) != sign(FC.comp.8.str$logFC)] <- "NoEnrichment"
+FC.comp.8.str$str[sign(FC.comp.8.str$strFC) != sign(FC.comp.8.str$logFC) | !(FC.comp.8.str$ID %in% HRFR8c0.DG$ID)] <- "NoEnrichment"
 
 scatterPlot(FC.comp.8.str, x = "logFC", y = "strFC", colorBy = "str", plotName = "Struct_8hpa", corPlot = F)
 
@@ -244,7 +244,7 @@ FC.comp.12.str$strFC[is.na(FC.comp.12.str$strFC) | grepl("^g",FC.comp.12.str$str
 
 FC.comp.12.str$strFC <- as.numeric(FC.comp.12.str$strFC)
 
-FC.comp.12.str$str[sign(FC.comp.12.str$strFC) != sign(FC.comp.12.str$logFC)] <- "NoEnrichment"
+FC.comp.12.str$str[sign(FC.comp.12.str$strFC) != sign(FC.comp.12.str$logFC) | !(FC.comp.12.str$ID %in% HRFR12c0.DG$ID)] <- "NoEnrichment"
 
 scatterPlot(FC.comp.12.str, x = "logFC", y = "strFC", colorBy = "str", plotName = "Struct_12hpa", corPlot = F)
 
