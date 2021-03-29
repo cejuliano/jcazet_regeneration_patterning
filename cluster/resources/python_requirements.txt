@@ -9,7 +9,7 @@ docutils==0.16
 idna==2.8
 idr==2.0.3
 imagesize==1.2.0
-Jinja2==2.11.1
+Jinja2==2.11.3
 kiwisolver==1.1.0
 MACS2==2.2.6
 MarkupSafe==1.1.1
