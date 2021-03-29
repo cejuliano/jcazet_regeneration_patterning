@@ -135,7 +135,8 @@ strEnrichment <- function(x) {
   
   structureRes$strFC <- as.numeric(gsub("^g.*",NA, structureRes$strFC))
   
-  return(structureRes)
+  return(list(structureRes,enrichmentRes))
+  #return(structureRes)
 }
 
 plotATAC <- function(chr,start,stop) {
@@ -181,25 +182,65 @@ plotATAC <- function(chr,start,stop) {
   gg
 }
 
+####export normalized counts matrix####
+inormalizedCounts$ID <- rownames(inormalizedCounts)
+normalizedCounts$ID <- rownames(normalizedCounts)
+normalizedCounts <- merge(normalizedCounts,inormalizedCounts, by = "ID")
+
+rownames(normalizedCounts) <- normalizedCounts$ID
+
+normalizedCounts$ID <- NULL
+
+write.csv(normalizedCounts, file = "Analysis_Output/ATAC/fullNormCounts.csv")
+
+#need to reload results
+load("Analysis_Output/ATAC/ATAC_DGE.RData")
+load("Analysis_Output/ATAC/iATAC_DGE.RData")
+
 ####Visualize differentially activated peaks####
 
 FC.comp.3 <- fcCompare(F3F0,H3H0,list(F3F0.DG,H3H0.DG,HRFR3c0.DG))
+
+FC.comp.3.exp <- FC.comp.3[,c(1,6,10,2,16,30)]
+colnames(FC.comp.3.exp) <- c("Peak ID","Gene ID", "Swissprot Annotation",
+                             "Foot Reg logFC","Head Reg logFC","Structural Enrichment")
+write.csv(FC.comp.3.exp, file = "Analysis_Output/ATAC/fc.comp.3.csv", row.names = F)
 
 scatterPlot(FC.comp.3, "FC_Comp_3")
 
 FC.comp.8 <- fcCompare(F8F0,H8H0,list(F8F0.DG,H8H0.DG,HRFR8c0.DG))
 
+FC.comp.8.exp <- FC.comp.8[,c(1,6,10,2,16,30)]
+colnames(FC.comp.8.exp) <- c("Peak ID","Gene ID", "Swissprot Annotation",
+                             "Foot Reg logFC","Head Reg logFC","Structural Enrichment")
+write.csv(FC.comp.8.exp, file = "Analysis_Output/ATAC/fc.comp.8.csv", row.names = F)
+
 scatterPlot(FC.comp.8, "FC_Comp_8")
 
 FC.comp.8i <- fcCompare(Fi8Fi0,Hi8Hi0,list(Fi8Fi0.DG,Hi8Hi0.DG,inhib8c0.DG))
+
+FC.comp.8i.exp <- FC.comp.8i[,c(1,6,10,2,16,30)]
+colnames(FC.comp.8i.exp) <- c("Peak ID","Gene ID", "Swissprot Annotation",
+                             "Foot Reg logFC","Head Reg logFC","Structural Enrichment")
+write.csv(FC.comp.8i.exp, file = "Analysis_Output/ATAC/fc.comp.8i.csv", row.names = F)
 
 scatterPlot(FC.comp.8i, "FC_Comp_8i")
 
 FC.comp.12 <- fcCompare(F12F0,H12H0,list(F12F0.DG,H12H0.DG,HRFR12c0.DG))
 
+FC.comp.12.exp <- FC.comp.12[,c(1,6,10,2,16,30)]
+colnames(FC.comp.12.exp) <- c("Peak ID","Gene ID", "Swissprot Annotation",
+                              "Foot Reg logFC","Head Reg logFC","Structural Enrichment")
+write.csv(FC.comp.12.exp, file = "Analysis_Output/ATAC/fc.comp.12.csv", row.names = F)
+
 scatterPlot(FC.comp.12, "FC_Comp_12")
 
 FC.comp.12i <- fcCompare(Fi12Fi0,Hi12Hi0,list(Fi12Fi0.DG,Hi12Hi0.DG,inhib12c0.DG))
+
+FC.comp.12i.exp <- FC.comp.12i[,c(1,6,10,2,16,30)]
+colnames(FC.comp.12i.exp) <- c("Peak ID","Gene ID", "Swissprot Annotation",
+                              "Foot Reg logFC","Head Reg logFC","Structural Enrichment")
+write.csv(FC.comp.12i.exp, file = "Analysis_Output/ATAC/fc.comp.12i.csv", row.names = F)
 
 scatterPlot(FC.comp.12i, "FC_Comp_12i")
 
@@ -211,6 +252,10 @@ FC.comp.8.str <- HRFR8c0[HRFR8c0$ID %in% FC.comp.8$ID,]
 str.8 <- unique(FC.comp.8.str[complete.cases(FC.comp.8.str$G_Name),"gene_ID"])
 
 str.8 <- strEnrichment(str.8)
+
+str.8.exp <- str.8[[2]]
+
+str.8 <- str.8[[1]]
 
 FC.comp.8.str$str <- mapvalues(FC.comp.8$gene_ID_F, from = str.8$ID, to = str.8$structureRes, warn_missing = F)
 
@@ -226,6 +271,16 @@ FC.comp.8.str$str[sign(FC.comp.8.str$strFC) != sign(FC.comp.8.str$logFC) | !(FC.
 
 scatterPlot(FC.comp.8.str, x = "logFC", y = "strFC", colorBy = "str", plotName = "Struct_8hpa", corPlot = F)
 
+FC.comp.8.str.exp <- FC.comp.8.str[,c(1,6,2,17,16,10)]
+colnames(FC.comp.8.str.exp) <- c("Peak ID","Gene ID","Regen LogFC", "SC LogFC", "Structure Enrichment", "Swissprot Annotation")
+
+str.8.exp$ID <- rownames(str.8.exp)
+str.8.exp <- str.8.exp[,c(6,2,3,4,5)]
+colnames(str.8.exp) <- c("ID","LogFC","Percent Positive, Head Cells", "Percent Positive, Foot Cells", "Adjusted P-value")
+
+write.csv(FC.comp.8.str.exp,"Analysis_Output/ATAC/str.comp.8.csv", row.names = F)
+write.csv(str.8.exp,"Analysis_Output/ATAC/str.8.csv", row.names = F)
+
 # 12hpa
 
 FC.comp.12.str <- HRFR12c0[HRFR12c0$ID %in% FC.comp.12$ID,]
@@ -233,6 +288,10 @@ FC.comp.12.str <- HRFR12c0[HRFR12c0$ID %in% FC.comp.12$ID,]
 str.12 <- unique(FC.comp.12.str[complete.cases(FC.comp.12.str$G_Name),"gene_ID"])
 
 str.12 <- strEnrichment(str.12)
+
+str.12.exp <- str.12[[2]]
+
+str.12 <- str.12[[1]]
 
 FC.comp.12.str$str <- mapvalues(FC.comp.12$gene_ID_F, from = str.12$ID, to = str.12$structureRes, warn_missing = F)
 
@@ -248,6 +307,16 @@ FC.comp.12.str$str[sign(FC.comp.12.str$strFC) != sign(FC.comp.12.str$logFC) | !(
 
 scatterPlot(FC.comp.12.str, x = "logFC", y = "strFC", colorBy = "str", plotName = "Struct_12hpa", corPlot = F)
 
+FC.comp.12.str.exp <- FC.comp.12.str[,c(1,6,2,17,16,10)]
+colnames(FC.comp.12.str.exp) <- c("Peak ID","Gene ID","Regen LogFC", "SC LogFC", "Structure Enrichment", "Swissprot Annotation")
+
+str.12.exp$ID <- rownames(str.12.exp)
+str.12.exp <- str.12.exp[,c(6,2,3,4,5)]
+colnames(str.12.exp) <- c("ID","LogFC","Percent Positive, Head Cells", "Percent Positive, Foot Cells", "Adjusted P-value")
+
+write.csv(FC.comp.12.str.exp,"Analysis_Output/ATAC/str.comp.12.csv", row.names = F)
+write.csv(str.12.exp,"Analysis_Output/ATAC/str.12.csv", row.names = F)
+
 ####Visualize ATAC Tracks ####
 
 plotATAC(chr = "Sc4wPfr_224.1", start  = 65750, stop = 67500)
@@ -258,6 +327,289 @@ ggsave("plots/ATAC/Wntless_prom.pdf", height = 6, width = 12)
 
 plotATAC(chr = "Sc4wPfr_399", start  = 437500, stop = 440000)
 ggsave("plots/ATAC/Wnt3_prom.pdf", height = 6, width = 12)
+
+####Export Peak Lists####
+
+write.bed <- function(x,p) {
+  bedFile <- peakLink[peakLink$peak_id %in% x$ID,]
+  bedFile <- bedFile[,2:5]
+  bedFile$score <- 0
+  bedFile$strand <- "."
+  write.table(bedFile, file = p, quote = F, sep = "\t", row.names = F, col.names = F)
+}
+
+#get peaks that increase in accessibility from 0 to 3 hpa
+Up.3 <- H3H0[H3H0$ID %in% c(H3H0.DG.up$ID,F3F0.DG.up$ID),]
+
+#get control peaks that don't go up at 3
+Up.3.c <- H3H0[!(H3H0$ID %in% Up.3$ID),]
+
+write.bed(Up.3, "resources/Up3.bed")
+write.bed(Up.3.c, "resources/Up3c.bed")
+
+system("./homerEnrichment.sh resources/Up3.bed resources/Up3c.bed Up3Enrichment")
+
+
+####Visualize ATAC Tracks using Gviz####
+library(Gviz)
+genomeInfo <- read.table("resources/Dovetail.genome", stringsAsFactors = F)
+
+chrominfo <- data.frame(chrom=genomeInfo$V1, length=genomeInfo$V2, is_circular=rep(FALSE,length(genomeInfo$V1)))
+txDb.mi <- makeTxDbFromGFF(file="resources/hydra.augustus.gff", format="gff", dataSource="Gene Models", organism ="Hydra vulgaris", chrominfo=chrominfo)
+
+options(ucscChromosomeNames=F)
+
+AtacPlot <- function(chr, height, left, right, buffer,fpath = "plot.pdf") {
+  chrID <- chr
+  
+  #This specifies the maximum value on the y-axis
+  z <- height
+
+  #chromosome map
+  gtrack <- GenomeAxisTrack(name = chrID,add53=T, add35 = T, fontsize = 13, fontcolor.title = "black", 
+                            fontsize.title = 13, showTitle = F, rotation.title = 0, grid = T,
+                            cex = 0.6, labelPos = "below")
+  #gene models
+  grtrack <- GeneRegionTrack(txDb.mi, chromosome=chrID, name="Genes", transcriptAnnotation = "gene", 
+                             col = "black", fontsize.group = 13, fontcolor.group = "black", fill = "black", 
+                             fontsize=25, rotation.title = 0, background.title = "white", col.line = "black",
+                             just.group = "below", collapseTranscripts = "longest")
+  
+  H0_1 <- DataTrack(range = "resources/bigwigs/0H1_final_shift.bw", 
+                  type = "polygon", col = "black", lwd.mountain = 0, fill.mountain = c("#7f0000","#7f0000"), 
+                  chromosome = chrID, name = "Control", fontsize = 13, showAxis = T, ylim=c(0,z), 
+                  background.title = "white", fontcolor.title = "black", col.axis = "black", 
+                  span = 0.5, lwd = 0, showTitle = F, cex.axis = 0.6)
+  
+  H0_2 <- DataTrack(range = "resources/bigwigs/0H2_final_shift.bw", 
+                  type = "polygon", col = "black", lwd.mountain = 0, fill.mountain = c("#7f0000","#7f0000"), 
+                  chromosome = chrID, name = "Control", fontsize = 13, showAxis = T, ylim=c(0,z), 
+                  background.title = "white", fontcolor.title = "black", col.axis = "black", 
+                  span = 0.5, lwd = 0, showTitle = F, cex.axis = 0.6)
+  
+  H0_3 <- DataTrack(range = "resources/bigwigs/0H3_final_shift.bw", 
+                    type = "polygon", col = "black", lwd.mountain = 0, fill.mountain = c("#7f0000","#7f0000"), 
+                    chromosome = chrID, name = "Control", fontsize = 13, showAxis = T, ylim=c(0,z), 
+                    background.title = "white", fontcolor.title = "black", col.axis = "black", 
+                    span = 0.5, lwd = 0, showTitle = F, cex.axis = 0.6)
+  
+  H0_4 <- DataTrack(range = "resources/bigwigs/0H4_final_shift.bw", 
+                    type = "polygon", col = "black", lwd.mountain = 0, fill.mountain = c("#7f0000","#7f0000"), 
+                    chromosome = chrID, name = "Control", fontsize = 13, showAxis = T, ylim=c(0,z), 
+                    background.title = "white", fontcolor.title = "black", col.axis = "black", 
+                    span = 0.5, lwd = 0, showTitle = F, cex.axis = 0.6)
+  
+  H0_5 <- DataTrack(range = "resources/bigwigs/0H5_final_shift.bw", 
+                    type = "polygon", col = "black", lwd.mountain = 0, fill.mountain = c("#7f0000","#7f0000"), 
+                    chromosome = chrID, name = "Control", fontsize = 13, showAxis = T, ylim=c(0,z), 
+                    background.title = "white", fontcolor.title = "black", col.axis = "black", 
+                    span = 0.5, lwd = 0, showTitle = F, cex.axis = 0.6)
+  
+  F0_1 <- DataTrack(range = "resources/bigwigs/0F1_final_shift.bw", 
+                    type = "polygon", col = "black", lwd.mountain = 0, fill.mountain = c("#00007f","#00007f"), 
+                    chromosome = chrID, name = "Control", fontsize = 13, showAxis = T, ylim=c(0,z), 
+                    background.title = "white", fontcolor.title = "black", col.axis = "black", 
+                    span = 0.5, lwd = 0, showTitle = F, cex.axis = 0.6)
+  
+  F0_2 <- DataTrack(range = "resources/bigwigs/0F2_final_shift.bw", 
+                    type = "polygon", col = "black", lwd.mountain = 0, fill.mountain = c("#00007f","#00007f"), 
+                    chromosome = chrID, name = "Control", fontsize = 13, showAxis = T, ylim=c(0,z), 
+                    background.title = "white", fontcolor.title = "black", col.axis = "black", 
+                    span = 0.5, lwd = 0, showTitle = F, cex.axis = 0.6)
+  
+  F0_3 <- DataTrack(range = "resources/bigwigs/0F3_final_shift.bw", 
+                    type = "polygon", col = "black", lwd.mountain = 0, fill.mountain = c("#00007f","#00007f"), 
+                    chromosome = chrID, name = "Control", fontsize = 13, showAxis = T, ylim=c(0,z), 
+                    background.title = "white", fontcolor.title = "black", col.axis = "black", 
+                    span = 0.5, lwd = 0, showTitle = F, cex.axis = 0.6)
+  
+  F0_4 <- DataTrack(range = "resources/bigwigs/0F4_final_shift.bw", 
+                    type = "polygon", col = "black", lwd.mountain = 0, fill.mountain = c("#00007f","#00007f"), 
+                    chromosome = chrID, name = "Control", fontsize = 13, showAxis = T, ylim=c(0,z), 
+                    background.title = "white", fontcolor.title = "black", col.axis = "black", 
+                    span = 0.5, lwd = 0, showTitle = F, cex.axis = 0.6)
+  
+  F0_5 <- DataTrack(range = "resources/bigwigs/0F5_final_shift.bw", 
+                    type = "polygon", col = "black", lwd.mountain = 0, fill.mountain = c("#00007f","#00007f"), 
+                    chromosome = chrID, name = "Control", fontsize = 13, showAxis = T, ylim=c(0,z), 
+                    background.title = "white", fontcolor.title = "black", col.axis = "black", 
+                    span = 0.5, lwd = 0, showTitle = F, cex.axis = 0.6)
+  
+  H3_1 <- DataTrack(range = "resources/bigwigs/3H1_final_shift.bw", 
+                    type = "polygon", col = "black", lwd.mountain = 0, fill.mountain = c("#ff0000","#ff0000"), 
+                    chromosome = chrID, name = "Control", fontsize = 13, showAxis = T, ylim=c(0,z), 
+                    background.title = "white", fontcolor.title = "black", col.axis = "black", 
+                    span = 0.5, lwd = 0, showTitle = F, cex.axis = 0.6)
+  
+  H3_2 <- DataTrack(range = "resources/bigwigs/3H2_final_shift.bw", 
+                    type = "polygon", col = "black", lwd.mountain = 0, fill.mountain = c("#ff0000","#ff0000"), 
+                    chromosome = chrID, name = "Control", fontsize = 13, showAxis = T, ylim=c(0,z), 
+                    background.title = "white", fontcolor.title = "black", col.axis = "black", 
+                    span = 0.5, lwd = 0, showTitle = F, cex.axis = 0.6)
+  
+  H3_3 <- DataTrack(range = "resources/bigwigs/3H3_final_shift.bw", 
+                    type = "polygon", col = "black", lwd.mountain = 0, fill.mountain = c("#ff0000","#ff0000"), 
+                    chromosome = chrID, name = "Control", fontsize = 13, showAxis = T, ylim=c(0,z), 
+                    background.title = "white", fontcolor.title = "black", col.axis = "black", 
+                    span = 0.5, lwd = 0, showTitle = F, cex.axis = 0.6)
+
+  F3_1 <- DataTrack(range = "resources/bigwigs/3F1_final_shift.bw", 
+                    type = "polygon", col = "black", lwd.mountain = 0, fill.mountain = c("#0000ff","#0000ff"), 
+                    chromosome = chrID, name = "Control", fontsize = 13, showAxis = T, ylim=c(0,z), 
+                    background.title = "white", fontcolor.title = "black", col.axis = "black", 
+                    span = 0.5, lwd = 0, showTitle = F, cex.axis = 0.6)
+  
+  F3_2 <- DataTrack(range = "resources/bigwigs/3F2_final_shift.bw", 
+                    type = "polygon", col = "black", lwd.mountain = 0, fill.mountain = c("#0000ff","#0000ff"), 
+                    chromosome = chrID, name = "Control", fontsize = 13, showAxis = T, ylim=c(0,z), 
+                    background.title = "white", fontcolor.title = "black", col.axis = "black", 
+                    span = 0.5, lwd = 0, showTitle = F, cex.axis = 0.6)
+  
+  F3_3 <- DataTrack(range = "resources/bigwigs/3F3_final_shift.bw", 
+                    type = "polygon", col = "black", lwd.mountain = 0, fill.mountain = c("#0000ff","#0000ff"), 
+                    chromosome = chrID, name = "Control", fontsize = 13, showAxis = T, ylim=c(0,z), 
+                    background.title = "white", fontcolor.title = "black", col.axis = "black", 
+                    span = 0.5, lwd = 0, showTitle = F, cex.axis = 0.6)
+  
+  H8_1 <- DataTrack(range = "resources/bigwigs/8H1_final_shift.bw", 
+                    type = "polygon", col = "black", lwd.mountain = 0, fill.mountain = c("#ff4c4c","#ff4c4c"), 
+                    chromosome = chrID, name = "Control", fontsize = 13, showAxis = T, ylim=c(0,z), 
+                    background.title = "white", fontcolor.title = "black", col.axis = "black", 
+                    span = 0.5, lwd = 0, showTitle = F, cex.axis = 0.6)
+  
+  H8_2 <- DataTrack(range = "resources/bigwigs/8H2_final_shift.bw", 
+                    type = "polygon", col = "black", lwd.mountain = 0, fill.mountain = c("#ff4c4c","#ff4c4c"), 
+                    chromosome = chrID, name = "Control", fontsize = 13, showAxis = T, ylim=c(0,z), 
+                    background.title = "white", fontcolor.title = "black", col.axis = "black", 
+                    span = 0.5, lwd = 0, showTitle = F, cex.axis = 0.6)
+  
+  H8_3 <- DataTrack(range = "resources/bigwigs/8H3_final_shift.bw", 
+                    type = "polygon", col = "black", lwd.mountain = 0, fill.mountain = c("#ff4c4c","#ff4c4c"), 
+                    chromosome = chrID, name = "Control", fontsize = 13, showAxis = T, ylim=c(0,z), 
+                    background.title = "white", fontcolor.title = "black", col.axis = "black", 
+                    span = 0.5, lwd = 0, showTitle = F, cex.axis = 0.6)
+  
+  H8_4 <- DataTrack(range = "resources/bigwigs/8H4_final_shift.bw", 
+                    type = "polygon", col = "black", lwd.mountain = 0, fill.mountain = c("#ff4c4c","#ff4c4c"), 
+                    chromosome = chrID, name = "Control", fontsize = 13, showAxis = T, ylim=c(0,z), 
+                    background.title = "white", fontcolor.title = "black", col.axis = "black", 
+                    span = 0.5, lwd = 0, showTitle = F, cex.axis = 0.6)
+  
+  H8_5 <- DataTrack(range = "resources/bigwigs/8H5_final_shift.bw", 
+                    type = "polygon", col = "black", lwd.mountain = 0, fill.mountain = c("#ff4c4c","#ff4c4c"), 
+                    chromosome = chrID, name = "Control", fontsize = 13, showAxis = T, ylim=c(0,z), 
+                    background.title = "white", fontcolor.title = "black", col.axis = "black", 
+                    span = 0.5, lwd = 0, showTitle = F, cex.axis = 0.6)
+  
+  F8_1 <- DataTrack(range = "resources/bigwigs/8F1_final_shift.bw", 
+                    type = "polygon", col = "black", lwd.mountain = 0, fill.mountain = c("#4c4cff","#4c4cff"), 
+                    chromosome = chrID, name = "Control", fontsize = 13, showAxis = T, ylim=c(0,z), 
+                    background.title = "white", fontcolor.title = "black", col.axis = "black", 
+                    span = 0.5, lwd = 0, showTitle = F, cex.axis = 0.6)
+  
+  F8_2 <- DataTrack(range = "resources/bigwigs/8F2_final_shift.bw", 
+                    type = "polygon", col = "black", lwd.mountain = 0, fill.mountain = c("#4c4cff","#4c4cff"), 
+                    chromosome = chrID, name = "Control", fontsize = 13, showAxis = T, ylim=c(0,z), 
+                    background.title = "white", fontcolor.title = "black", col.axis = "black", 
+                    span = 0.5, lwd = 0, showTitle = F, cex.axis = 0.6)
+  
+  F8_3 <- DataTrack(range = "resources/bigwigs/8F3_final_shift.bw", 
+                    type = "polygon", col = "black", lwd.mountain = 0, fill.mountain = c("#4c4cff","#4c4cff"), 
+                    chromosome = chrID, name = "Control", fontsize = 13, showAxis = T, ylim=c(0,z), 
+                    background.title = "white", fontcolor.title = "black", col.axis = "black", 
+                    span = 0.5, lwd = 0, showTitle = F, cex.axis = 0.6)
+  
+  F8_4 <- DataTrack(range = "resources/bigwigs/8F4_final_shift.bw", 
+                    type = "polygon", col = "black", lwd.mountain = 0, fill.mountain = c("#4c4cff","#4c4cff"), 
+                    chromosome = chrID, name = "Control", fontsize = 13, showAxis = T, ylim=c(0,z), 
+                    background.title = "white", fontcolor.title = "black", col.axis = "black", 
+                    span = 0.5, lwd = 0, showTitle = F, cex.axis = 0.6)
+  
+  F8_5 <- DataTrack(range = "resources/bigwigs/8F5_final_shift.bw", 
+                    type = "polygon", col = "black", lwd.mountain = 0, fill.mountain = c("#4c4cff","#4c4cff"), 
+                    chromosome = chrID, name = "Control", fontsize = 13, showAxis = T, ylim=c(0,z), 
+                    background.title = "white", fontcolor.title = "black", col.axis = "black", 
+                    span = 0.5, lwd = 0, showTitle = F, cex.axis = 0.6)
+  
+  H12_1 <- DataTrack(range = "resources/bigwigs/12H1_final_shift.bw", 
+                    type = "polygon", col = "black", lwd.mountain = 0, fill.mountain = c("#ff9999","#ff9999"), 
+                    chromosome = chrID, name = "Control", fontsize = 13, showAxis = T, ylim=c(0,z), 
+                    background.title = "white", fontcolor.title = "black", col.axis = "black", 
+                    span = 0.5, lwd = 0, showTitle = F, cex.axis = 0.6)
+  
+  H12_2 <- DataTrack(range = "resources/bigwigs/12H2_final_shift.bw", 
+                    type = "polygon", col = "black", lwd.mountain = 0, fill.mountain = c("#ff9999","#ff9999"), 
+                    chromosome = chrID, name = "Control", fontsize = 13, showAxis = T, ylim=c(0,z), 
+                    background.title = "white", fontcolor.title = "black", col.axis = "black", 
+                    span = 0.5, lwd = 0, showTitle = F, cex.axis = 0.6)
+  
+  H12_3 <- DataTrack(range = "resources/bigwigs/12H3_final_shift.bw", 
+                    type = "polygon", col = "black", lwd.mountain = 0, fill.mountain = c("#ff9999","#ff9999"), 
+                    chromosome = chrID, name = "Control", fontsize = 13, showAxis = T, ylim=c(0,z), 
+                    background.title = "white", fontcolor.title = "black", col.axis = "black", 
+                    span = 0.5, lwd = 0, showTitle = F, cex.axis = 0.6)
+  
+  H12_4 <- DataTrack(range = "resources/bigwigs/12H4_final_shift.bw", 
+                    type = "polygon", col = "black", lwd.mountain = 0, fill.mountain = c("#ff9999","#ff9999"), 
+                    chromosome = chrID, name = "Control", fontsize = 13, showAxis = T, ylim=c(0,z), 
+                    background.title = "white", fontcolor.title = "black", col.axis = "black", 
+                    span = 0.5, lwd = 0, showTitle = F, cex.axis = 0.6)
+  
+  H12_5 <- DataTrack(range = "resources/bigwigs/12H5_final_shift.bw", 
+                    type = "polygon", col = "black", lwd.mountain = 0, fill.mountain = c("#ff9999","#ff9999"), 
+                    chromosome = chrID, name = "Control", fontsize = 13, showAxis = T, ylim=c(0,z), 
+                    background.title = "white", fontcolor.title = "black", col.axis = "black", 
+                    span = 0.5, lwd = 0, showTitle = F, cex.axis = 0.6)
+  
+  F12_1 <- DataTrack(range = "resources/bigwigs/12F1_final_shift.bw", 
+                    type = "polygon", col = "black", lwd.mountain = 0, fill.mountain = c("#9999ff","#9999ff"), 
+                    chromosome = chrID, name = "Control", fontsize = 13, showAxis = T, ylim=c(0,z), 
+                    background.title = "white", fontcolor.title = "black", col.axis = "black", 
+                    span = 0.5, lwd = 0, showTitle = F, cex.axis = 0.6)
+  
+  F12_2 <- DataTrack(range = "resources/bigwigs/12F2_final_shift.bw", 
+                    type = "polygon", col = "black", lwd.mountain = 0, fill.mountain = c("#9999ff","#9999ff"), 
+                    chromosome = chrID, name = "Control", fontsize = 13, showAxis = T, ylim=c(0,z), 
+                    background.title = "white", fontcolor.title = "black", col.axis = "black", 
+                    span = 0.5, lwd = 0, showTitle = F, cex.axis = 0.6)
+  
+  F12_3 <- DataTrack(range = "resources/bigwigs/12F3_final_shift.bw", 
+                    type = "polygon", col = "black", lwd.mountain = 0, fill.mountain = c("#9999ff","#9999ff"), 
+                    chromosome = chrID, name = "Control", fontsize = 13, showAxis = T, ylim=c(0,z), 
+                    background.title = "white", fontcolor.title = "black", col.axis = "black", 
+                    span = 0.5, lwd = 0, showTitle = F, cex.axis = 0.6)
+  
+  F12_4 <- DataTrack(range = "resources/bigwigs/12F4_final_shift.bw", 
+                    type = "polygon", col = "black", lwd.mountain = 0, fill.mountain = c("#9999ff","#9999ff"), 
+                    chromosome = chrID, name = "Control", fontsize = 13, showAxis = T, ylim=c(0,z), 
+                    background.title = "white", fontcolor.title = "black", col.axis = "black", 
+                    span = 0.5, lwd = 0, showTitle = F, cex.axis = 0.6)
+  
+  F12_5 <- DataTrack(range = "resources/bigwigs/12F5_final_shift.bw", 
+                    type = "polygon", col = "black", lwd.mountain = 0, fill.mountain = c("#9999ff","#9999ff"), 
+                    chromosome = chrID, name = "Control", fontsize = 13, showAxis = T, ylim=c(0,z), 
+                    background.title = "white", fontcolor.title = "black", col.axis = "black", 
+                    span = 0.5, lwd = 0, showTitle = F, cex.axis = 0.6)
+  
+  pdf(file = fpath, width=15, height=20)
+  plotTracks(list(F0_1,F0_2,F0_3,F0_4,F0_5,
+                  F3_1,F3_2,F3_3,
+                  F8_1,F8_2,F8_3,F8_4,F8_5,
+                  F12_1,F12_2,F12_3,F12_4,F12_5,
+                  H0_1,H0_2,H0_3,H0_4,H0_5,
+                  H3_1,H3_2,H3_3,
+                  H8_1,H8_2,H8_3,H8_4,H8_5,
+                  H12_1,H12_2,H12_3,H12_4,H12_5,
+                  grtrack,gtrack), 
+             from=(left - buffer), to=(right + buffer), title.width = 0.7, margin = 0, sizes = c(rep(4,36),4,3))
+  dev.off()
+}
+
+AtacPlot("Sc4wPfr_399",12,350000,550000,0, "plots/ATAC/wnt3_broad.pdf")
+
+AtacPlot("Sc4wPfr_224.1",10,10,200000,0, "plots/ATAC/wnt910c_broad.pdf")
+
+AtacPlot("Sc4wPfr_390",7,1380000,1575000,0, "plots/ATAC/pitx_broad.pdf")
 
 
 

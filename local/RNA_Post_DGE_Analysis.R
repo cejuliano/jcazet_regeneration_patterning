@@ -7,6 +7,8 @@ library(plyr)
 library(gsubfn)
 library(ggfortify)
 library(gt)
+library(plotly)
+
 
 #set working directory to folder containing this script
 setwd(dirname(getActiveDocumentContext()$path))
@@ -215,28 +217,68 @@ strEnrichment <- function(x) {
   
   structureRes$strFC <- as.numeric(gsub("^g.*",NA, structureRes$strFC))
   
-  return(structureRes)
+  return(list(structureRes,enrichmentRes))
 }
+
+####export normalized counts matrix####
+inormalizedCounts$ID <- rownames(inormalizedCounts)
+normalizedCounts$ID <- rownames(normalizedCounts)
+normalizedCounts <- merge(normalizedCounts,inormalizedCounts, by = "ID")
+
+rownames(normalizedCounts) <- normalizedCounts$ID
+
+normalizedCounts$ID <- NULL
+
+write.csv(normalizedCounts, file = "Analysis_Output/RNA/fullNormCounts.csv")
+
+#need to reload results
+load("Analysis_Output/RNA/RNA_DGE.RData")
+load("Analysis_Output/RNA/icrt_RNA_DGE.RData")
 
 ####Visualize differentially activated genes####
 
 FC.comp.3 <- fcCompare(F3vF0,H3vH0,list(F3vF0.DG,H3vH0.DG,HR3vFR3.DG))
 
+FC.comp.3.exp <- FC.comp.3[,c(1,7,2,13,24)]
+colnames(FC.comp.3.exp) <- c("Gene ID", "Swissprot Annotation",
+                             "Foot Reg logFC","Head Reg logFC","Structural Enrichment")
+write.csv(FC.comp.3.exp, file = "Analysis_Output/RNA/fc.comp.3.csv", row.names = F)
+
 scatterPlot(FC.comp.3, "FC_Comp_3")
 
 FC.comp.8 <- fcCompare(F8vF0,H8vH0,list(F8vF0.DG,H8vH0.DG,HR8vFR8c0.DG))
+
+FC.comp.8.exp <- FC.comp.8[,c(1,7,2,13,24)]
+colnames(FC.comp.8.exp) <- c("Gene ID", "Swissprot Annotation",
+                             "Foot Reg logFC","Head Reg logFC","Structural Enrichment")
+write.csv(FC.comp.8.exp, file = "Analysis_Output/RNA/fc.comp.8.csv", row.names = F)
 
 scatterPlot(FC.comp.8, "FC_Comp_8")
 
 FC.comp.8i <- fcCompare(Fi8vFi0,Hi8vHi0,list(Fi8vFi0.DG,Hi8vHi0.DG,Hi8vFi8c0.DG))
 
+FC.comp.8i.exp <- FC.comp.8i[,c(1,7,2,13,24)]
+colnames(FC.comp.8i.exp) <- c("Gene ID", "Swissprot Annotation",
+                             "Foot Reg logFC","Head Reg logFC","Structural Enrichment")
+write.csv(FC.comp.8i.exp, file = "Analysis_Output/RNA/fc.comp.8i.csv", row.names = F)
+
 scatterPlot(FC.comp.8i, "FC_Comp_8i")
 
 FC.comp.12 <- fcCompare(F12vF0,H12vH0,list(F12vF0.DG,H12vH0.DG,HR12vFR12c0.DG))
 
+FC.comp.12.exp <- FC.comp.12[,c(1,7,2,13,24)]
+colnames(FC.comp.12.exp) <- c("Gene ID", "Swissprot Annotation",
+                              "Foot Reg logFC","Head Reg logFC","Structural Enrichment")
+write.csv(FC.comp.12.exp, file = "Analysis_Output/RNA/fc.comp.12.csv", row.names = F)
+
 scatterPlot(FC.comp.12,"FC_Comp_12")
 
 FC.comp.12i <- fcCompare(Fi12vFi0,Hi12vHi0,list(Fi12vFi0,Hi12vHi0,Hi12vFi12c0.DG))
+
+FC.comp.12i.exp <- FC.comp.12i[,c(1,7,2,13,24)]
+colnames(FC.comp.12i.exp) <- c("Gene ID", "Swissprot Annotation",
+                              "Foot Reg logFC","Head Reg logFC","Structural Enrichment")
+write.csv(FC.comp.12i.exp, file = "Analysis_Output/RNA/fc.comp.12i.csv", row.names = F)
 
 scatterPlot(FC.comp.12i,"FC_Comp_12i")
 
@@ -246,8 +288,8 @@ FC.comp.8.str <- HR8vFR8c0[HR8vFR8c0$ID %in% FC.comp.8$ID,]
 
 str.8 <- strEnrichment(FC.comp.8.str$ID)
 
-FC.comp.8.str$str <- str.8[,1]
-FC.comp.8.str$strFC <- str.8[,2]
+FC.comp.8.str$str <- str.8[[1]][,1]
+FC.comp.8.str$strFC <- str.8[[1]][,2]
 
 FC.comp.8.str <- FC.comp.8.str[!is.na(FC.comp.8.str$strFC),]
 
@@ -257,13 +299,19 @@ FC.comp.8.str$str[sign(FC.comp.8.str$strFC) != sign(FC.comp.8.str$logFC)] <- "No
 
 scatterPlot(FC.comp.8.str, x = "logFC", y = "strFC", colorBy = "str", plotName = "Struct_8hpa", corPlot = F)
 
+FC.comp.8.str.expt <- FC.comp.8.str[,c(1,2,14,13,7)]
+
+write.csv(FC.comp.8.str.expt,"Analysis_Output/RNA/str.comp.8.csv", row.names = F)
+write.csv(str.8[[2]][,c(2,3,4,5)],"Analysis_Output/RNA/str.8.csv")
+
+
 #repeat for 12hpa
 FC.comp.12.str <- HR12vFR12c0[HR12vFR12c0$ID %in% FC.comp.12$ID,]
 
 str.12 <- strEnrichment(FC.comp.12.str$ID)
 
-FC.comp.12.str$str <- str.12[,1]
-FC.comp.12.str$strFC <- str.12[,2]
+FC.comp.12.str$str <- str.12[[1]][,1]
+FC.comp.12.str$strFC <- str.12[[1]][,2]
 
 FC.comp.12.str <- FC.comp.12.str[!is.na(FC.comp.12.str$strFC),]
 
@@ -272,6 +320,11 @@ FC.comp.12.str$str[!(FC.comp.12.str$ID %in% HR12vFR12c0.DG$ID)] <- "NoEnrichment
 FC.comp.12.str$str[sign(FC.comp.12.str$strFC) != sign(FC.comp.12.str$logFC)] <- "NoEnrichment"
 
 scatterPlot(FC.comp.12.str, x = "logFC", y = "strFC", colorBy = "str", plotName = "Struct_12hpa", corPlot = F)
+
+FC.comp.12.str.expt <- FC.comp.8.str[,c(1,2,14,13,7)]
+
+write.csv(FC.comp.12.str.expt,"Analysis_Output/RNA/str.comp.12.csv", row.names = F)
+write.csv(str.12[[2]][,c(2,3,4,5)],"Analysis_Output/RNA/str.12.csv")
                 
 ####plot noteworthy genes####
 unlink("plots/RNA/Noteworthy_Genes", recursive = T)
@@ -305,6 +358,16 @@ ggsave("plots/RNA/Noteworthy_Genes/Wntless_i.pdf", height = 6, width = 11)
 #bcat
 plotGeneExpression("g7262")
 ggsave("plots/RNA/Noteworthy_Genes/bCat.pdf", height = 6, width = 6)
+
+plotGeneExpression("g7262", drug.include = T)
+ggsave("plots/RNA/Noteworthy_Genes/bCat_i.pdf", height = 6, width = 11)
+
+#bra1
+plotGeneExpression("g24952")
+ggsave("plots/RNA/Noteworthy_Genes/bra1.pdf", height = 6, width = 6)
+
+plotGeneExpression("g24952", drug.include = T)
+ggsave("plots/RNA/Noteworthy_Genes/bra1_i.pdf", height = 6, width = 11)
 
 #wnt7
 plotGeneExpression("g29750")
@@ -355,52 +418,139 @@ ggsave("plots/RNA/Noteworthy_Genes/creb.pdf", height = 6, width = 6)
 plotGeneExpression("g32585")
 ggsave("plots/RNA/Noteworthy_Genes/cr3l.pdf", height = 6, width = 6)
 
+#apop genes
+plotGeneExpression("g31854")
+ggsave("plots/RNA/Noteworthy_Genes/casp3c.pdf", height = 6, width = 6)
+
+plotGeneExpression("g664")
+ggsave("plots/RNA/Noteworthy_Genes/casp3-like.pdf", height = 6, width = 6)
+
+plotGeneExpression("g22655")
+ggsave("plots/RNA/Noteworthy_Genes/bcl-like-6.pdf", height = 6, width = 6)
+
+plotGeneExpression("g21693")
+ggsave("plots/RNA/Noteworthy_Genes/p53.pdf", height = 6, width = 6)
+
+plotGeneExpression("g7775")
+ggsave("plots/RNA/Noteworthy_Genes/bax-like.pdf", height = 6, width = 6)
+
+plotGeneExpression("g11021")
+ggsave("plots/RNA/Noteworthy_Genes/dffb.pdf", height = 6, width = 6)
+
+plotGeneExpression("g14048")
+ggsave("plots/RNA/Noteworthy_Genes/dapk2.pdf", height = 6, width = 6)
+
+plotGeneExpression("g16168")
+ggsave("plots/RNA/Noteworthy_Genes/hsp70-like.pdf", height = 6, width = 6)
+
+
+
 #notum single cell plot
 FeaturePlot(ds, hFind(ds, "g26902.t"), order = T, pt.size = 0.8) + NoLegend() + NoAxes()
 ggsave("plots/RNA/Noteworthy_Genes/notum_sc.png", device = "png", height = 6, width = 6, dpi = 300)
 
-####Early head and foot regeneration genes at 3hpa####
-GvS <- merge(HR12vFR12c0.DG, H3vH0, by = "ID", suffixes = c("_12","_H3"))
-
-GvS <- merge(GvS, F3vF0, by = "ID")
-
-GvS$aveFC <- apply(GvS[,c("logFC_H3","logFC")], 1, function(x) mean(x))
-
-#GvS <-GvS[GvS$ID %in% FC.comp.12.str[FC.comp.12.str$str != "NoEnrichment","ID"],]
-
-GvS$Interesting <- "noEnrichment"
-GvS$Interesting[(GvS$ID %in% HR12vFR12c0.DG.up$ID) & (GvS$ID %in% c(H3vH0.DG$ID,F3vF0.DG$ID))] <- "Head"
-GvS$Interesting[(GvS$ID %in% HR12vFR12c0.DG.down$ID) & (GvS$ID %in% c(H3vH0.DG$ID,F3vF0.DG$ID))] <- "Foot"
-
-scatterPlot(GvS,plotName = "EarlyWoundStructure", x = "logFC_12", y = "aveFC", colorBy = "Interesting", corPlot = F)
-
 ####icrt effect on structure specific program####
 
+genesOfInterest <- c(HR8vFR8c0.DG$ID, HR12vFR12c0.DG$ID)
+
 #divergently expressed genes, head regeneration at 8hpa
-H8vHi8c0.headChange <- H8vHi8c0[H8vHi8c0$ID %in% HR8vFR8c0.DG$ID,]
+H8vHi8c0.headChange <- H8vHi8c0[H8vHi8c0$ID %in% genesOfInterest,]
 
-H8vHi8c0.headChange$Interesting <- "noChange"
-H8vHi8c0.headChange$Interesting[H8vHi8c0.headChange$ID %in% H8vHi8c0.DG.down$ID] <- "Less"
-H8vHi8c0.headChange$Interesting[H8vHi8c0.headChange$ID %in% H8vHi8c0.DG.up$ID] <- "More"
-H8vHi8c0.headChange$sigScore <- -log10(H8vHi8c0.headChange$FDR)
+H12vHi12c0.headChange <- H12vHi12c0[H12vHi12c0$ID %in% genesOfInterest,]
 
-gg <- scatterPlot(H8vHi8c0.headChange, "drug_effect_head_8hpa", x = "logFC", y = "sigScore", colorBy = "Interesting", corPlot = F)
-gg <- gg + geom_abline(intercept = 3, slope = 0, size = 0.8, linetype = "longdash")
-gg <- gg + scale_color_manual(values = c("#008000","#e59400","darkgrey"))
-ggsave(filename = "plots/RNA/drug_effect_head_8hpa.pdf", plot = gg, width = 4, height = 4, useDingbats=FALSE)
+plotTest <- merge(H8vHi8c0.headChange[,c('ID','logFC',"FDR")],H12vHi12c0.headChange[,c('ID','logFC',"FDR")], by = "ID")
+plotTest$annot <- mapvalues(plotTest$ID, from = Annotations$ID, to = Annotations$SP, warn_missing = F)
 
-#divergently expressed genes, foot regeneration at 8hpa
-F8vFi8c0.footChange <- F8vFi8c0[F8vFi8c0$ID %in% HR8vFR8c0.DG$ID,]
+plotTest$change.8 <- as.numeric(mapvalues(plotTest$ID, from = Hi8vHi0$ID, to  = Hi8vHi0$logFC, warn_missing = F))
+plotTest$sig.8 <- as.numeric(mapvalues(plotTest$ID, from = Hi8vHi0$ID, to  = Hi8vHi0$FDR, warn_missing = F))
 
-F8vFi8c0.footChange$Interesting <- "Not Interesting"
-F8vFi8c0.footChange$Interesting[F8vFi8c0.footChange$ID %in% F8vFi8c0.DG.down$ID] <- "Less"
-F8vFi8c0.footChange$Interesting[F8vFi8c0.footChange$ID %in% F8vFi8c0.DG.up$ID] <- "More"
-F8vFi8c0.footChange$sigScore <- -log10(F8vFi8c0.footChange$FDR)
+plotTest$change.12 <- as.numeric(mapvalues(plotTest$ID, from = Hi12vHi0$ID, to  = Hi12vHi0$logFC, warn_missing = F))
+plotTest$sig.12 <- as.numeric(mapvalues(plotTest$ID, from = Hi12vHi0$ID, to  = Hi12vHi0$FDR, warn_missing = F))
 
-gg <- scatterPlot(F8vFi8c0.footChange, "drug_effect_foot_8hpa", x = "logFC", y = "sigScore", colorBy = "Interesting", corPlot = F)
-gg <- gg + geom_abline(intercept = 3, slope = 0, size = 0.8, linetype = "longdash")
-gg <- gg + scale_color_manual(values = c("#008000","#e59400","darkgrey"))
-ggsave(filename = "plots/RNA/drug_effect_foot_8hpa.pdf", plot = gg, width = 4, height = 4, useDingbats=FALSE)
+plotTest$interesting.8 <- "2"
+plotTest$interesting.8[plotTest$FDR.x <= 1e-3 & plotTest$logFC.x > 0 & plotTest$change.8 > 0.5] <- "1"
+plotTest$interesting.8[plotTest$FDR.x <= 1e-3 & plotTest$logFC.x < 0 & plotTest$change.8 < 0.5] <- "0"
+
+plotTest$interesting.12 <- "2"
+plotTest$interesting.12[plotTest$FDR.y <= 1e-3 & plotTest$logFC.y > 0 & plotTest$change.12 > 0.5] <- "1"
+plotTest$interesting.12[plotTest$FDR.y <= 1e-3 & plotTest$logFC.y < 0 & plotTest$change.12 < 0.5] <- "0"
+
+plotTest$annot <- gsub(".*[|]","",plotTest$annot)
+plotTest$annot <- gsub("^g\\d.*","",plotTest$annot)
+
+plotTest$ID <- paste(plotTest$ID, plotTest$annot, sep = " ")
+
+scatterPlot(plotTest, "icrt_effect_HR_8.pdf", x = "logFC.x", y = "change.8", colorBy = "interesting.8", corPlot = F)
+scatterPlot(plotTest, "icrt_effect_HR_12.pdf", x = "logFC.y", y = "change.12", colorBy = "interesting.12", corPlot = F)
+
+plotTest.exp8H <- plotTest[,c(1:3,7,8,11,6)]
+plotTest.exp8H$interesting.8[plotTest.exp8H$interesting.8 == "2"] <- "No Change"
+plotTest.exp8H$interesting.8[plotTest.exp8H$interesting.8 == "1"] <- "TCF Inhibited"
+plotTest.exp8H$interesting.8[plotTest.exp8H$interesting.8 == "0"] <- "TCF Dependent"
+colnames(plotTest.exp8H) <- c("ID", "H8vHi8c0 LogFC", "H8vHi8c0 FDR", "Hi8vHi0 LogFC", 
+                              "Hi8vHi0 FDR", "TCF Function", "Swissprot Annotation")
+
+write.csv(plotTest.exp8H, file = "Analysis_Output/RNA/icrtEffect.8h.csv", row.names = F)
+
+plotTest.exp12H <- plotTest[,c(1,4:5,9:10,12,6)]
+plotTest.exp12H$interesting.12[plotTest.exp12H$interesting.12 == "2"] <- "No Change"
+plotTest.exp12H$interesting.12[plotTest.exp12H$interesting.12 == "1"] <- "TCF Inhibited"
+plotTest.exp12H$interesting.12[plotTest.exp12H$interesting.12 == "0"] <- "TCF Dependent"
+colnames(plotTest.exp12H) <- c("ID", "H12vFi12c0 LogFC", "H12vHi12c0 FDR", "Hi12vHi0 LogFC", 
+                               "Hi12vHi0 FDR", "TCF Function", "Swissprot Annotation")
+
+write.csv(plotTest.exp12H, file = "Analysis_Output/RNA/icrtEffect.12h.csv", row.names = F)
+
+
+#divergently expressed genes, foot regeneration
+
+#divergently expressed genes, head regeneration at 8hpa
+F8vFi8c0.footChange <- F8vFi8c0[F8vFi8c0$ID %in% genesOfInterest,]
+
+F12vFi12c0.footChange <- F12vFi12c0[F12vFi12c0$ID %in% genesOfInterest,]
+
+plotTest <- merge(F8vFi8c0.footChange[,c('ID','logFC',"FDR")],F12vFi12c0.footChange[,c('ID','logFC',"FDR")], by = "ID")
+plotTest$annot <- mapvalues(plotTest$ID, from = Annotations$ID, to = Annotations$SP, warn_missing = F)
+
+plotTest$change.8 <- as.numeric(mapvalues(plotTest$ID, from = Fi8vFi0$ID, to  = Fi8vFi0$logFC, warn_missing = F))
+plotTest$sig.8 <- as.numeric(mapvalues(plotTest$ID, from = Fi8vFi0$ID, to  = Fi8vFi0$FDR, warn_missing = F))
+
+plotTest$change.12 <- as.numeric(mapvalues(plotTest$ID, from = Fi12vFi0$ID, to  = Fi12vFi0$logFC, warn_missing = F))
+plotTest$sig.12 <- as.numeric(mapvalues(plotTest$ID, from = Fi12vFi0$ID, to  = Fi12vFi0$FDR, warn_missing = F))
+
+plotTest$interesting.8 <- "2"
+plotTest$interesting.8[plotTest$FDR.x <= 1e-3 & plotTest$logFC.x > 0 & plotTest$change.8 > 0] <- "1"
+plotTest$interesting.8[plotTest$FDR.x <= 1e-3 & plotTest$logFC.x < 0 & plotTest$change.8 < 0] <- "0"
+
+plotTest$interesting.12 <- "2"
+plotTest$interesting.12[plotTest$FDR.y <= 1e-3 & plotTest$logFC.y > 0 & plotTest$change.12 > 0.5] <- "1"
+plotTest$interesting.12[plotTest$FDR.y <= 1e-3 & plotTest$logFC.y < 0 & plotTest$change.12 < 0.5] <- "0"
+
+plotTest$annot <- gsub(".*[|]","",plotTest$annot)
+plotTest$annot <- gsub("^g\\d.*","",plotTest$annot)
+
+plotTest$ID <- paste(plotTest$ID, plotTest$annot, sep = " ")
+
+scatterPlot(plotTest, "icrt_effect_FR_8.pdf", x = "logFC.x", y = "change.8", colorBy = "interesting.8", corPlot = F)
+scatterPlot(plotTest, "icrt_effect_FR_12.pdf", x = "logFC.y", y = "change.12", colorBy = "interesting.12", corPlot = F)
+
+plotTest.exp8F <- plotTest[,c(1:3,7,8,11,6)]
+plotTest.exp8F$interesting.8[plotTest.exp8F$interesting.8 == "2"] <- "No Change"
+plotTest.exp8F$interesting.8[plotTest.exp8F$interesting.8 == "1"] <- "TCF Inhibited"
+plotTest.exp8F$interesting.8[plotTest.exp8F$interesting.8 == "0"] <- "TCF Dependent"
+colnames(plotTest.exp8F) <- c("ID", "F8vFi8c0 LogFC", "F8vFi8c0 FDR", "Fi8vFi0 LogFC", 
+                              "Fi8vFi0 FDR", "TCF Function", "Swissprot Annotation")
+
+write.csv(plotTest.exp8F, file = "Analysis_Output/RNA/icrtEffect.8f.csv", row.names = F)
+
+plotTest.exp12F <- plotTest[,c(1,4:5,9:10,12,6)]
+plotTest.exp12F$interesting.12[plotTest.exp12F$interesting.12 == "2"] <- "No Change"
+plotTest.exp12F$interesting.12[plotTest.exp12F$interesting.12 == "1"] <- "TCF Inhibited"
+plotTest.exp12F$interesting.12[plotTest.exp12F$interesting.12 == "0"] <- "TCF Dependent"
+colnames(plotTest.exp12F) <- c("ID", "F12vFi12c0 LogFC", "F12vFi12c0 FDR", "Fi12vFi0 LogFC", 
+                              "Fi12vFi0 FDR", "TCF Function", "Swissprot Annotation")
+
+write.csv(plotTest.exp12F, file = "Analysis_Output/RNA/icrtEffect.12f.csv", row.names = F)
 
 ####check for correspondence between RNA and ATAC data####
 #test for enrichment of injury induced peaks near injury induced genes

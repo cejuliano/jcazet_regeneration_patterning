@@ -23,9 +23,6 @@ counts <- dba.peakset(regenATAC, bRetrieve=TRUE, DataType=DBA_DATA_FRAME)
 #drop peak coordinate columns
 counts <- counts[,4:ncol(counts)]
 
-#save raw counts file in csv format
-write.csv(counts,file = "resources/untreated_ATAC_Counts.csv")
-
 counts <- counts[,!(grepl("i",colnames(counts)))]
 
 #fix column names

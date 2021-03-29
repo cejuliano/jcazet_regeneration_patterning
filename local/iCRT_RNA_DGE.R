@@ -64,24 +64,12 @@ analysisList <- analysisList[keep, , keep.lib.sizes=FALSE]
 #calculate normalization factors for each sample
 analysisList <- calcNormFactors(analysisList)
 
-#pca
-normalizedCounts <- as.data.frame(cpm(analysisList, normalized.lib.sizes=T, log = F))
-normalizedCounts <- normalizedCounts[,grepl("i", colnames(normalizedCounts))]
-
-reg.pca <- t(normalizedCounts)
-
-reg.pca <- prcomp(reg.pca, center = T, scale = T)
-
-autoplot(reg.pca, label=T, x = 1, y = 2)
-
-g.load <- reg.pca$rotation
-
-s.load <- reg.pca$x
-
+#define treatment groups
 design <- model.matrix(~0+TR, data = analysisList$samples)
 
 colnames(design) <- gsub("TR","",colnames(design))
 
+#calculate differential gene expression
 analysisList <- estimateGLMRobustDisp(analysisList,design)
 
 fit <- glmQLFit(analysisList,design, robust = T)
@@ -166,6 +154,6 @@ write.csv(my.contrasts, file = "Analysis_Output/RNA/icrt_contrasts.csv")
 
 ianalysisList <- analysisList
 
-saveThese <- c(saveThese,"ianalysisList","inormalizedCounts","Annotations","g.load")
+saveThese <- c(saveThese,"ianalysisList","inormalizedCounts","Annotations")
 
 save(file = "Analysis_Output/RNA/icrt_RNA_DGE.RData", list = saveThese)

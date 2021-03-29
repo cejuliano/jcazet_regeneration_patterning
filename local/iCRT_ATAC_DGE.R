@@ -20,9 +20,6 @@ load("resources/full_ATAC_Counts.rds")
 regenATAC <- dba.count(regenATAC, peaks=NULL, score=DBA_SCORE_READS)
 counts <- dba.peakset(regenATAC, bRetrieve=TRUE, DataType=DBA_DATA_FRAME)
 
-#save raw counts file in csv format
-write.csv(counts,file = "resources/full_ATAC_Counts.csv")
-
 #drop peak coordinate columns
 counts <- counts[,4:ncol(counts)]
 counts <- counts[,grepl("i",colnames(counts))]

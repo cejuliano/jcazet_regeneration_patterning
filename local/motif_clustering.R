@@ -42,13 +42,6 @@ dev.off()
 clusts <- cutree(hc1, h = 0.2)
 length(unique(clusts))
 
-#for clusters with more than one motif, we will pick a representative motif by finding
-#the PWM that has the highest enrichment score when comparing accessible regions to 
-#non-accessible regions using HOMER (i.e. sequences within peaks against random genomic 
-#background)
-
-length(which(table(clusts) > 1))
-
 #save cluster information
 repMotifs <- data.frame(ID = names(clusts), clust = clusts)
 

@@ -209,61 +209,27 @@ wntGenesRegen <- gsub("[.].*","",pooledCandidates$V2)
 
 #manually curate list
 wntGenesRegen <- wntGenesRegen[!(wntGenesRegen %in% c("g23666","g15494","g21815",
-                                                    "g12374","g28262","g6790"))]
+                                                    "g12374","g28262","g6790",
+                                                    "g14229","g2452","g18479",
+                                                    "g22345","g18305","g5788",
+                                                    "g10578","g2867","g7202",
+                                                    "g25526","g21086","g20588",
+                                                    "g6618","g26846","g26055",
+                                                    "g26212","g13407","g4366",
+                                                    "g14846","g11595","g3101",
+                                                    "g11056","g9565","g19216",
+                                                    "g14691","g33117","g18301"))]
 
-#adding sp5, sfrp, and wntless
-wntGenesRegen <- c(wntGenesRegen, "g33422","g12274","g18842")
+#adding sp5, sfrp, crcm, and wntless
+wntGenesRegen <- c(wntGenesRegen, "g33422","g12274", "g23252","g18842")
 
 #get expression data for wnt genes
 wntGenesRegen <- as.data.frame(t(normalizedCounts[rownames(normalizedCounts) %in% wntGenesRegen,]))
 
-#because the single cell trajectory analysis used a transcriptome reference, we need to get
-#a table that allows us to convert between genome and transcriptome references
-lrIDs <- read.csv("crossReferenceIDs.csv")
+#write wnt gene names to file for later reference
+write.table(colnames(wntGenesRegen), file = "wntGeneIDs.txt", quote = F, sep = "\t", row.names = FALSE, col.names = FALSE)
 
-#we will also pull in the precomputed trajectory analysis results 
-load("ecto_endo_spline.RData")
-
-#get genome ID equivalent for each transcriptome ID in the trajectory results
-rownames(ms.both) <- mapvalues(rownames(ms.both), from = lrIDs$lrID, to = lrIDs$dvID, warn_missing = F)
-
-ms.both <- ms.both[!duplicated(rownames(ms.both)),]
-
-#drop transcripts with very low expression in the dataset
-ms.both.cut <- which(apply(ms.both, 1, max) > 0.01)
-
-ms.both <- ms.both[ms.both.cut,]
-
-#normalize the results to have the maximum value be 1 and the minimum value be 0 
-ms.both <- t(apply(ms.both, 1, function(x) x - min(x)))
-ms.both <- t(apply(ms.both, 1, function(x) x/max(x)))
-
-#subset to only include wnt genes
-ms.both.plot <- ms.both[rownames(ms.both) %in% colnames(wntGenesRegen),]
-
-
-#generate trajectory results heatmap
-getPalette = colorRampPalette(c("white","blue"))
-
-geneNames <- rownames(ms.both.plot)
-geneNames.wnt <- mapvalues(geneNames, from = gsub("[.].*","",pooledCandidates$V2), 
-                           to = pooledCandidates$V1, warn_missing = F)
-geneNames <- paste0(geneNames, " ", geneNames.wnt)
-
-pdf(file = "ds_spline_heatmap.pdf", height = 10, width = 12)
-geneOrder <- heatmap.2(as.matrix(ms.both.plot), Colv = F, Rowv = T, dendrogram = "none", 
-                       col = getPalette(90), trace = "none", density.info = "none",
-                       key = F, cexRow = 0.35, margins = c(4,4), scale = "none", keysize = 0.2, 
-                       colsep = c(16,40,46,71,117,133), labCol = NA, labRow = geneNames)
-dev.off()
-
-#save order from trajectory heatmap so the RNA-seq heatmap will have rows in the same order
-geneOrder <- rownames(ms.both.plot)[geneOrder$rowInd]
-geneOrder <- geneOrder[seq(length(geneOrder),1, by = -1)]
-
-#next we generate the RNA-seq heatmap
-
-#we'll to pool biological replicates
+#we'll have to pool biological replicates
 wntGenesRegen$treatment <- gsub("\\d+$","",rownames(wntGenesRegen))
 wntGenesRegen <- aggregate(wntGenesRegen[,1:(ncol(wntGenesRegen)-1)],by = list(wntGenesRegen$treatment), mean)
 
@@ -276,23 +242,30 @@ wntGenesRegen <- wntGenesRegen[c(1,5,7,3,2,6,8,4),]
 
 getPalette = colorRampPalette(c("white","red"))
 
+wntGenesRegen.NN <- wntGenesRegen
+
 #normalize the results to have the maximum value be 1 and the minimum value be 0 
 wntGenesRegen <- apply(wntGenesRegen, 2, function(x) x - min(x))
 wntGenesRegen <- as.data.frame(apply(wntGenesRegen, 2, function(x) x/max(x)))
 
-wntGenesRegen <- wntGenesRegen[,geneOrder]
+#wntGenesRegen <- wntGenesRegen[,geneOrder]
 
 heatRowNames <- mapvalues(colnames(wntGenesRegen), from = gsub("[.].*","",pooledCandidates$V2), 
                           pooledCandidates$V1, warn_missing = F)
 
 heatRowNames <- paste0(heatRowNames, " ", colnames(wntGenesRegen))
 
-pdf(file = "wntGenesRegen.pdf", height = 10, width = 6)
-heatmap.2(t(wntGenesRegen), Rowv = F, Colv = F, dendrogram = "none", scale = "none",
+pdf(file = "wntGenesRegen.pdf", height = 15, width = 6)
+hmDat <- heatmap.2(t(wntGenesRegen), Rowv = T, Colv = F, dendrogram = "none", scale = "none",
           col = getPalette(90), trace = "none", key = FALSE, sepcolor = "white",
           keysize = 0.1, margins = c(8,12), colsep = c(4), labRow = heatRowNames)
 dev.off()
 
+wntGenesRegen <- as.data.frame(t(wntGenesRegen.NN)[hmDat$rowInd,])
+
+wntGenesRegen <- wntGenesRegen[nrow(wntGenesRegen):1,]
+
+write.csv(wntGenesRegen, file = "heatmapMatrix.csv")
 
 #check for siginificant changes in the RNA seq data for all the considered Wnt genes
 differential.lists <- paste0(ls(pattern = "^[HF][1-9]+v[HF]0.DG."),"$ID")
@@ -309,3 +282,4 @@ checkSig <- function(x) {
 
 wntGeneDifferentials <- lapply(colnames(wntGenesRegen), function(x) checkSig(x))
 names(wntGeneDifferentials) <- colnames(wntGenesRegen)
+

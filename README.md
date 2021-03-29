@@ -1,10 +1,10 @@
-## ATAC-seq and RNA-seq data processing and analysis for Cazet and Juliano (2020)
+## ATAC-seq and RNA-seq data processing and analysis for Cazet and Juliano (2021)
 
 The code in this repository has been divided into two sections based on the computing system for which the individual scripts were written. Scripts in the `cluster` folder were written to be executed on a remotely accessed computing cluster running Ubuntu that uses the slurm workload manager. Scripts in the `local` folder were written to be run on a Mac personal computer running macOS Catalina (10.15). `Cluster` scripts perform raw read processing, mapping, and peak calling, while `local` scripts are used to identify significant differentials in read counts and generate plots.
 
 ##### Accessing required files not available on the Github repository
 
-Because of limitations in the size and format of files that can be hosted on Github, not all files necessary for this analysis are included in this repository. We provide links for the omitted files that are publicly available through other sources. The required files not available through other sources can be accessed from the version of this repository hosted on [datadryad.org](https://doi.org/10.25338/B8S612).
+Because of limitations in the size and format of files that can be hosted on Github, not all files necessary for this analysis are included in this repository. We provide links for the omitted files that are publicly available through other sources. The required files not available through other sources can be accessed from the version of this repository hosted on [datadryad.org](doi.org/10.25338/B8S612).
 
 Descriptions for the files associated with this repository can be found in the `fileDescriptions.txt` file.
 
@@ -17,11 +17,9 @@ The following files are required and can be downloaded from other sources (links
 
 [the Hydra 2.0 genome gene models](https://arusha.nhgri.nih.gov/hydra/download/genemodels_nucleotides/hydra2.0_genemodels.nt.gz) - required in both the `cluster/resources` and  `local/Wnt_Survey` folders. **File modification required:** The fasta headers need to be modified to consist only of the gene model ID. This can be done with the following command: `sed 's/^.*\.g/>g/g' hydra2.0_genemodels.nt > Dovetail_mRNAs.fa`
 
-[the *Hydra* LRv2 transcriptome reference](https://arusha.nhgri.nih.gov/hydra/download/transcripts/aepLRv2_transcript.fa.gz) - required in the `local/Wnt_Survey` folder.
+[refseq proteins for *Nematostella vectensis*](ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/209/225/GCF_000209225.1_ASM20922v1/GCF_000209225.1_ASM20922v1_protein.faa.gz) - required in the `local/Wnt_Survey` folder.
 
-[refseq proteins for Nematostella vectensis](https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/209/225/GCF_000209225.1_ASM20922v1/GCF_000209225.1_ASM20922v1_protein.faa.gz) - required in the `local/Wnt_Survey` folder.
-
-[refseq proteins for Exaiptasia pallida](https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/001/417/965/GCF_001417965.1_Aiptasia_genome_1.1/GCF_001417965.1_Aiptasia_genome_1.1_protein.faa.gz) - required in the `local/Wnt_Survey` folder.
+[refseq proteins for *Exaiptasia pallida*](ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/001/417/965/GCF_001417965.1_Aiptasia_genome_1.1/GCF_001417965.1_Aiptasia_genome_1.1_protein.faa.gz) - required in the `local/Wnt_Survey` folder.
 
 
 [the swissprot database](https://www.uniprot.org/downloads) - required in the `local/Wnt_Survey` folder. **File modification required:** The analysis requires a file derived from the swissprot fasta file that contains only human sequences (`SP.human.fasta`). To generate that file, execute the following code in the directory containing the `uniprot_sprot.fasta` file:
@@ -56,11 +54,9 @@ These files were generated specifically for this analysis and are available at t
 
 `Hydra_Seurat_Whole_Genome_updated.rds` - R binary file containing a Seurat object of the *Hydra* single cell sequencing atlas data mapped to the *Hydra* 2.0 genome gene models. This file is required in the `local/resources` folder.
 
-`hydra.augustus.gtf` - Genome coordinates that map the Hydra 2.0 genome gene models to the genome reference sequence. These files are required in the `local/resources` folder.
+`hydra.augustus.gtf` - Genome coordinates that map the Hydra 2.0 genome gene models to the genome reference sequence. This file is required in the `local/resources` folder.
 
-`Hydra_URD_Endoderm.rds` and `Hydra_URD_Endoderm.rds` - R binary files containing URD objects of endodermal or ectodermal epithelial cells respectively computationally ordered along the oral-aboral axis. These files are required in the `local/Wnt_Survey` folder.
-
-`LRv2_SP.csv` - Table that contains the best swissprot blast hit for each entry in the LRv2 transcriptome reference along with additional information associated with each swissprot hit. This file is required in the `local/Wnt_Survey` folder.
+`Dovetail_Interproscan.csv` - Table that contains information on the domain composition of the *Hydra* 2.0 genome protein models. The table was generated using interProScan using default settings. Used by the `chromVar_Untreated_Analysis.R` script. This file is required in the `local/resources` folder.
 
 
 
@@ -257,7 +253,7 @@ We then identify transcription factor binding motifs associated with significant
 Rscript ChromVar_Counts.R
 Rscript motif_clustering.R
 ```
-We then run the chromVAR analysis, focusing on motifs that change in accessibility in response to injury and how those motifs are affected by iCRT14. These scripts will generate the heatmap and individual accessibility plots used in the paper.
+We then run the chromVAR analysis, focusing on motifs that change in accessibility in response to injury and how those motifs are affected by iCRT14. These scripts will generate the heatmap and individual accessibility plots used in the paper. The `chromVar_Untreated_Analysis.R` script will also perform an analysis to identify candidate regulators of injury-induced Wnt pathway component expression at 3hpa (presented in Figure 4). This part of the analysis integrates the chromVar results, the ATAC-seq and RNA-seq DGE results, and HOMER motif enrichment analyses.
 ```
 Rscript chromVar_Untreated_Analysis.R
 Rscript chromVar_icrt_Analysis.R
@@ -270,9 +266,9 @@ Finally, because the cAMP response element was identified as a binding motif of 
 ```
 
 ##### Surveying Wnt Signaling Component Expression Patterns
-The final part of the analysis generates plots of canonical Wnt signaling pathway component expression during regeneration and in whole uninjured *Hydra*. This analysis uses the results of a previously published trajectory analysis (Siebert et al., 2019) that ordered single epithelial cells according to their position along the oral-aboral axis. To identify candidate pathway components, the analysis uses Wnt pathway gene entries identified by KEGG to query the *Hydra* 2.0 genome reference. The KEGG database annotations for *Hydra* are supplemented using additional blast hits pulled using queries from KEGG annotations of other cnidarian genomes as well as the human Wnt pathway components.
+The final part of the analysis generates plots of canonical Wnt signaling pathway component expression during regeneration. To identify candidate pathway components, the analysis uses Wnt pathway gene entries identified by KEGG to query the *Hydra* 2.0 genome reference. The KEGG database annotations for *Hydra* are supplemented using additional blast hits pulled using queries from KEGG annotations of other cnidarian genomes as well as the human Wnt pathway components.
 
-Because this part of the analysis is complex and generates a large number of intermediate files, it has been placed within it's own folder: `Wnt_Survey`. The commands below should be executed from within the `Wnt_Survey` directory.
+Because this part of the analysis generates a fair number of intermediate files, it has been placed within it's own folder: `Wnt_Survey`. The commands below should be executed from within the `Wnt_Survey` directory.
 
 Blast-able databases will need to be prepared for each reference used throughout this analysis executing the following commands:
 
@@ -285,19 +281,7 @@ makeblastdb -in GCF_000209225.1_ASM20922v1_protein.faa -dbtype prot -out nve
 makeblastdb -in GCF_001417965.1_Aiptasia_genome_1.1_protein.faa -dbtype prot -out epa
 ```
 
-Because the analysis that positionally ordered the Hydra single cell sequenced data used the LRv2 reference and not the *Hydra* 2.0 genome, a table needs to be generated to allow for the conversion of IDs from one reference to the other (called `crossReferenceIDs.csv`). To generate this table, execute:
-
- ```
- Rscript crossReferenceIDs.R
- ```
-
-The single cell positional ordering data needs to be processed in order to be used for heatmap plots. To generate the necessary processed data file (`ecto_endo_spline.RData`), execute:
-
-```
-Rscript positional_ordering.R
-```
-
-Finally, to generate the heatmap plots of Wnt component expression, execute:
+To generate the heatmap plots of Wnt component expression during regeneration, execute:
 
 ```
 Rscript wntGenes.R

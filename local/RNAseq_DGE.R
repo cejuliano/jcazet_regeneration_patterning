@@ -61,22 +61,7 @@ analysisList <- analysisList[keep, , keep.lib.sizes=F]
 #calculate normalization factors for each sample
 analysisList <- calcNormFactors(analysisList)
 
-#pca
-normalizedCounts <- as.data.frame(cpm(analysisList, normalized.lib.sizes=T, log = F))
-
-reg.pca <- t(normalizedCounts)
-
-reg.pca <- prcomp(reg.pca, center = T, scale = T)
-
-autoplot(reg.pca, label=T, x = 1, y = 2)
-
-g.load <- reg.pca$rotation
-
-s.load <- reg.pca$x
-
-#get loadings for pc1
-pc1 <- scale(s.load[,2], center = T, scale = T)
-
+#define treatment groups
 design <- model.matrix(~0+TR, data = analysisList$samples)
 
 colnames(design) <- gsub("TR","",colnames(design))
