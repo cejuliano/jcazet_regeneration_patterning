@@ -21,7 +21,7 @@ pkg-resources==0.0.0
 plotly==4.5.0
 py2bit==0.3.0
 pyBigWig==0.3.17
-Pygments==2.5.2
+Pygments==2.7.4
 pyparsing==2.4.6
 pysam==0.15.4
 python-dateutil==2.8.1
